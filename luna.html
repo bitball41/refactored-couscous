@@ -146,7 +146,7 @@
     .spoiler { background: var(--text); color: transparent; border-radius: 4px; cursor: pointer; }
     .spoiler.on { background: var(--surface); color: inherit; }
     .composer { width: min(760px, calc(100% - 32px)); margin: 0 auto 16px; }
-    form {
+    #form {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 8px;
@@ -156,7 +156,7 @@
       background: var(--surface);
       padding: 8px;
     }
-    textarea { border: 0; background: transparent; resize: none; max-height: 160px; field-sizing: content; }
+    #input { border: 0; background: transparent; resize: none; max-height: 160px; field-sizing: content; }
     .status { min-height: 1.2em; margin: 6px 2px 0; color: var(--muted); font-size: .72rem; }
     .status.bad { color: var(--danger); }
     @media (max-width: 720px) {
