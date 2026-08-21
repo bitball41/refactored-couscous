@@ -204,14 +204,27 @@
       background: #121218;
       font-size: .8rem;
     }
+    .receipt summary {
+      list-style: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .receipt summary::-webkit-details-marker { display: none; }
+    .receipt summary::after { content: " ▾"; font-weight: 600; }
+    .receipt[open] summary { margin-bottom: 2px; }
     .receipt .kicker, .sources .kicker { color: var(--muted); font-size: .72rem; font-weight: 800; }
-    .tool { display: grid; grid-template-columns: 8px 1fr auto; gap: 8px; align-items: center; }
+    .tool { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 8px; align-items: start; }
     .tool i {
       width: 7px; height: 7px; border-radius: 50%;
       background: var(--muted);
+      margin-top: 6px;
     }
     .tool.running i { background: var(--fg); animation: pulse 1s ease-in-out infinite; }
     .tool.done i { background: var(--fg); }
+    .tool span { min-width: 0; overflow-wrap: anywhere; }
+    .tool b { font-weight: 800; color: var(--fg); }
     .tool em { font-style: normal; color: var(--muted); }
     @keyframes pulse { 50% { opacity: .25; transform: scale(.7); } }
     .live { display: grid; gap: 10px; justify-items: start; max-width: min(640px, 100%); }
@@ -443,12 +456,30 @@
       $('chats').querySelectorAll('[data-id]').forEach((btn) => btn.addEventListener('click', () => openChat(btn.dataset.id)));
     }
 
-    function toolReceipt(tools) {
+    function toolSummary(tools) {
+      const searches = (tools || []).filter((t) => t.name === 'web_search');
+      const files = (tools || []).filter((t) => t.name !== 'web_search');
+      const bits = [];
+      if (searches.length === 1) bits.push(searches[0].detail ? `Searched “${searches[0].detail}”` : 'Searched the web');
+      else if (searches.length > 1) bits.push(`${searches.length} searches`);
+      if (files.length === 1) bits.push(files[0].detail || files[0].label || 'File');
+      else if (files.length > 1) bits.push(`${files.length} files`);
+      return bits.join(' · ') || `${tools.length} tools`;
+    }
+    function toolRow(t) {
+      const state = t.status === 'running' ? 'running' : 'done';
+      if (t.name === 'web_search') {
+        const query = String(t.detail || '').trim();
+        const line = query ? `Search <b>${esc(query)}</b>` : esc(t.label || 'Searching the web');
+        return `<div class="tool ${state}"><i></i><span>${line}</span></div>`;
+      }
+      return `<div class="tool ${state}"><i></i><span>${esc(t.label || t.name)}</span>${t.detail ? `<em>${esc(t.detail)}</em>` : ''}</div>`;
+    }
+    function toolReceipt(tools, collapsed) {
       if (!tools?.length) return '';
-      return `<div class="receipt"><div class="kicker">Tools</div>${tools.map((t) => {
-        const state = t.status === 'running' ? 'running' : 'done';
-        return `<div class="tool ${state}"><i></i><span>${esc(t.label || t.name)}</span><em>${esc(t.detail || state)}</em></div>`;
-      }).join('')}</div>`;
+      const rows = tools.map(toolRow).join('');
+      if (collapsed) return `<details class="receipt"><summary>${esc(toolSummary(tools))}</summary>${rows}</details>`;
+      return `<div class="receipt">${rows}</div>`;
     }
 
     function sourceHost(url) {
@@ -469,10 +500,23 @@
         return [{ url, title: String(item.title || sourceHost(url) || url).trim() }];
       });
     }
+    function stripSourceDump(text, sources) {
+      let out = String(text || '').replace(/\r/g, '');
+      out = out.replace(/\n+(?:#{1,3}\s*)?(?:\*\*)?(?:sources?|citations?|references?)(?:\*\*)?\s*:?[ \t]*\n(?:[ \t]*(?:[-*]|\d+\.)?\s*https?:\/\/\S+[ \t]*\n?)+$/i, '');
+      for (const item of sources || []) {
+        const url = safeHttpUrl(item?.url) || String(item?.url || '').trim();
+        if (!url) continue;
+        const escaped = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        out = out.replace(new RegExp(`(?:\\n|^)[ \\t]*(?:[-*]|\\d+\\.)?[ \\t]*${escaped}[ \\t]*`, 'g'), '\n');
+        out = out.replace(new RegExp(`\\s*${escaped}`, 'g'), '');
+      }
+      out = out.replace(/\n+(?:#{1,3}\s*)?(?:\*\*)?(?:sources?|citations?|references?)(?:\*\*)?\s*:?[ \t]*$/i, '');
+      return out.replace(/\n{3,}/g, '\n\n').trim();
+    }
     function sourcesBlock(meta) {
       const items = lookupSources(meta);
       if (!items.length) return '';
-      return `<div class="sources"><div class="kicker">Looked up</div><div class="src-list">${items.map((item) =>
+      return `<div class="sources"><div class="kicker">Sources</div><div class="src-list">${items.map((item) =>
         `<a class="src" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}<small>${esc(sourceHost(item.url))}</small></a>`
       ).join('')}</div></div>`;
     }
@@ -503,8 +547,8 @@
         const files = !mine ? artifactCards(meta.files) : '';
         return `<article class="msg ${mine ? 'me' : ''}">
           <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && meta.mode ? `<span class="mode-tag">${esc(MODE_META[meta.mode]?.label || meta.mode)} · ${esc(meta.reasoning_effort || '')}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
-          ${!mine ? toolReceipt(meta.tools) : ''}
-          <div class="bubble"><div class="body">${renderBody(m.content)}${media}${file}${files}</div></div>
+          ${!mine ? toolReceipt(meta.tools, true) : ''}
+          <div class="bubble"><div class="body">${renderBody(mine ? m.content : stripSourceDump(m.content, meta.sources))}${media}${file}${files}</div></div>
           ${!mine ? sourcesBlock(meta) : ''}
         </article>`;
       }).join('') + (pending ? liveHtml() : '');
