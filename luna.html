@@ -1122,6 +1122,18 @@
           renderList();
         }
       }
+      if (buffer.trim()) {
+        const line = buffer.split('\n').find((l) => l.startsWith('data:'));
+        if (line) {
+          try {
+            const ev = JSON.parse(line.slice(5).trim());
+            if (ev.type === 'error') throw new Error(ev.error || 'Liminal could not answer.');
+            if (ev.type === 'done') last = ev;
+          } catch (err) {
+            if (err instanceof Error && err.message && !err.message.startsWith('Unexpected')) throw err;
+          }
+        }
+      }
       if (onDone) await onDone(last);
     }
 
@@ -1145,7 +1157,7 @@
             }),
           });
           await consumeStream(res, async (ev) => {
-            if (!ev?.reply) throw new Error('Liminal could not answer.');
+            if (!ev?.reply) throw new Error('Liminal ran out of time on that one. Try again.');
             ingest({
               id: ev.response_message_id || uid(),
               dm_id: currentId,
