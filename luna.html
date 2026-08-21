@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#050506">
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'none'"
@@ -14,64 +14,74 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://ucgjwrjqmexenmrpbdkh.supabase.co" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2/dist/umd/supabase.min.js" integrity="sha384-JWEyvHh+lRf0sN/WWY+QTQwX+CyWqmNg4tkc8GQzAMEtR2wGNrCJlvnu1lHD1kDm" crossorigin="anonymous"></script>
   <style>
     :root {
-      --bg: #000;
-      --fg: #f4f4f4;
-      --muted: #8a8a8a;
-      --line: #1d1d1d;
-      --line-2: #2c2c2c;
-      --panel: #070707;
-      --danger: #ff6b6b;
-      --sans: "IBM Plex Sans", system-ui, sans-serif;
+      --bg: #050506;
+      --fg: #f6f6f8;
+      --muted: #9b9ba6;
+      --line: #1c1c22;
+      --soft: #121217;
+      --bubble: #17171e;
+      --you: #f3f3f6;
+      --you-fg: #101014;
+      --danger: #ff7a8a;
+      --sans: Nunito, ui-rounded, system-ui, sans-serif;
       --mono: "IBM Plex Mono", ui-monospace, monospace;
-      --display: Syne, var(--sans);
+      --display: Fredoka, var(--sans);
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0;
-      background: var(--bg);
+      background: radial-gradient(1200px 700px at 50% -10%, #16161d 0%, var(--bg) 58%);
       color: var(--fg);
-      font: 15px/1.5 var(--sans);
+      font: 16px/1.55 var(--sans);
     }
     button, textarea, input { font: inherit; color: inherit; }
     button { cursor: pointer; }
     [hidden] { display: none !important; }
     a { color: inherit; }
     .screen { min-height: 100%; display: grid; place-items: center; padding: 28px; }
-    .card { width: min(340px, 100%); display: grid; gap: 14px; }
-    .mark { margin: 0; font: 800 2.1rem/1 var(--display); letter-spacing: -.06em; }
-    .card p { margin: 0; color: var(--muted); font-size: .84rem; }
-    label { display: grid; gap: 6px; color: var(--muted); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+    #boot { font: 700 2.4rem/1 var(--display); }
+    .card {
+      width: min(360px, 100%);
+      display: grid;
+      gap: 14px;
+      padding: 28px 26px;
+      border-radius: 32px;
+      background: var(--soft);
+      box-shadow: 0 18px 50px #0008;
+    }
+    .mark { margin: 0; font: 700 2.3rem/.95 var(--display); letter-spacing: -.03em; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: .78rem; font-weight: 700; }
     input, textarea {
       width: 100%;
-      border: 1px solid var(--line-2);
-      border-radius: 0;
-      background: transparent;
-      padding: 11px 12px;
+      border: 0;
+      border-radius: 16px;
+      background: #0b0b10;
+      padding: 12px 14px;
       outline: none;
     }
-    input:focus, textarea:focus { border-color: var(--fg); }
+    input:focus, textarea:focus { box-shadow: 0 0 0 2px #fff; }
     .go {
       border: 0;
+      border-radius: 999px;
       background: var(--fg);
-      color: #000;
-      font-weight: 600;
-      letter-spacing: .04em;
-      text-transform: uppercase;
+      color: #111;
+      font-weight: 800;
       padding: 12px;
     }
-    .err { color: var(--danger); font-size: .78rem; min-height: 1.1em; }
-    .app { height: 100%; display: grid; grid-template-columns: 240px minmax(0, 1fr); }
+    .err { color: var(--danger); font-size: .82rem; min-height: 1.1em; }
+    .app { height: 100%; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
     .rail {
       display: grid;
       grid-template-rows: auto 1fr auto;
-      border-right: 1px solid var(--line);
-      background: var(--panel);
+      background: #09090d;
       min-height: 0;
+      border-right: 1px solid #14141a;
     }
     .rail-head, .rail-foot {
       display: flex;
@@ -80,16 +90,16 @@
       gap: 8px;
       padding: 16px;
     }
-    .rail-head strong { font: 800 .95rem/1 var(--display); letter-spacing: -.04em; }
+    .rail-head strong { font: 700 1.15rem/1 var(--display); }
     .quiet {
-      border: 1px solid var(--line-2);
-      background: transparent;
-      padding: 6px 9px;
-      font-size: .68rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
+      border: 0;
+      border-radius: 999px;
+      background: #1a1a22;
+      padding: 7px 12px;
+      font-size: .78rem;
+      font-weight: 700;
     }
-    .rail-foot { border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; }
+    .rail-foot { color: var(--muted); font-size: .78rem; }
     .chats { overflow: auto; padding: 8px; }
     .chat {
       width: 100%;
@@ -97,143 +107,197 @@
       gap: 2px;
       text-align: left;
       border: 0;
+      border-radius: 18px;
       background: transparent;
-      padding: 10px 10px;
+      padding: 11px 12px;
     }
-    .chat:hover { background: #111; }
-    .chat.on { background: #161616; }
-    .chat b { font-size: .8rem; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .chat span { color: var(--muted); font: 11px var(--mono); }
-    .empty { padding: 32px 12px; color: var(--muted); font-size: .78rem; }
+    .chat:hover { background: #14141b; }
+    .chat.on { background: #1c1c26; }
+    .chat b { font-size: .86rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chat span { color: var(--muted); font-size: .72rem; }
+    .empty { padding: 32px 12px; color: var(--muted); font-size: .86rem; }
     .main { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; min-height: 0; }
     .top {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 14px 22px;
-      border-bottom: 1px solid var(--line);
     }
-    .top h1 { margin: 0; font-size: .92rem; font-weight: 550; }
+    .top h1 { margin: 0; font-size: 1rem; font-weight: 800; }
     .icon {
-      width: 34px; height: 34px; padding: 0;
+      width: 38px; height: 38px; padding: 0;
       display: grid; place-items: center;
-      border: 1px solid var(--line-2);
-      background: transparent;
+      border: 0;
+      border-radius: 50%;
+      background: #1a1a22;
     }
     .icon svg { width: 16px; height: 16px; }
     .thread { overflow: auto; }
-    .thread-inner { width: min(780px, calc(100% - 40px)); margin: 28px auto; display: grid; gap: 28px; }
-    .welcome { min-height: 42vh; display: grid; place-content: center; text-align: center; gap: 8px; }
-    .welcome h2 { margin: 0; font: 800 clamp(2.4rem, 7vw, 4.4rem)/.9 var(--display); letter-spacing: -.07em; }
-    .welcome p { margin: 0; color: var(--muted); font: 12px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
-    .msg { display: grid; gap: 8px; }
-    .who { display: flex; align-items: baseline; gap: 8px; font: 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-    .who b { color: var(--fg); font-weight: 500; }
-    .mode-tag { border: 1px solid var(--line-2); padding: 1px 6px; }
+    .thread-inner { width: min(760px, calc(100% - 36px)); margin: 12px auto 24px; display: grid; gap: 18px; }
+    .welcome { min-height: 42vh; display: grid; place-content: center; justify-items: center; text-align: center; gap: 10px; }
+    .orb {
+      display: block;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: radial-gradient(circle at 32% 32%, #fff, #cfcfd8 70%);
+      box-shadow: 0 0 28px #ffffff66;
+    }
+    .welcome h2 { margin: 0; font: 700 clamp(2.6rem, 8vw, 4.8rem)/.9 var(--display); letter-spacing: -.04em; }
+    .welcome p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #14141b;
+    }
+    .msg { display: grid; gap: 7px; max-width: min(640px, 100%); }
+    .msg.me { margin-left: auto; justify-items: end; }
+    .who { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .74rem; font-weight: 700; }
+    .who b { color: var(--fg); }
+    .mode-tag {
+      border-radius: 999px;
+      background: #1a1a22;
+      padding: 2px 8px;
+      font-size: .7rem;
+    }
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 24px 24px 24px 10px;
+      background: var(--bubble);
+      box-shadow: 0 10px 30px #0004;
+    }
+    .msg.me .bubble {
+      background: var(--you);
+      color: var(--you-fg);
+      border-radius: 24px 24px 10px 24px;
+    }
     .body { white-space: pre-wrap; overflow-wrap: anywhere; }
     .body a { text-decoration: underline; text-underline-offset: 3px; }
-    .body img { max-width: min(460px, 100%); display: block; margin-top: 10px; }
+    .body img { max-width: min(420px, 100%); display: block; margin-top: 10px; border-radius: 16px; }
     .file {
       display: flex; align-items: center; gap: 10px;
       margin-top: 10px; padding: 10px 12px;
-      border: 1px solid var(--line-2);
-      font-size: .82rem;
+      border-radius: 16px;
+      background: #101016;
+      font-size: .86rem;
     }
-    .file small { color: var(--muted); font: 11px var(--mono); }
+    .msg.me .file { background: #e7e7ee; }
+    .file small { color: var(--muted); font-size: .74rem; }
     .md-h { margin: .5em 0 .2em; font-size: 1.06em; }
-    .md-quote { display: block; border-left: 1px solid var(--fg); padding-left: 10px; color: var(--muted); }
+    .md-quote { display: block; border-left: 3px solid #fff4; padding-left: 10px; color: var(--muted); border-radius: 0 8px 8px 0; }
     .md-subtext { display: block; color: var(--muted); font-size: .8em; }
-    code { font-family: var(--mono); font-size: .86em; background: #121212; padding: .12em .35em; }
-    .code { margin: 10px 0; border: 1px solid var(--line-2); background: #080808; }
-    .code header { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; color: var(--muted); font: 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    code { font-family: var(--mono); font-size: .86em; background: #101016; padding: .12em .4em; border-radius: 8px; }
+    .msg.me code { background: #dddde6; }
+    .code { margin: 10px 0; border-radius: 16px; background: #0c0c12; overflow: hidden; }
+    .code header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; color: var(--muted); font-size: .74rem; font-weight: 700; }
     .code pre { margin: 0; padding: 12px; overflow: auto; font: 12.5px/1.5 var(--mono); }
-    .code button, .sources button, .file button { border: 0; background: transparent; color: var(--muted); padding: 0; font: 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
-    .spoiler { background: var(--fg); color: transparent; cursor: pointer; }
+    .code button, .file button { border: 0; background: transparent; color: var(--muted); padding: 0; font-weight: 800; font-size: .74rem; }
+    .spoiler { background: var(--fg); color: transparent; cursor: pointer; border-radius: 8px; }
     .spoiler.on { background: transparent; color: inherit; }
-    .receipt, .sources {
-      border: 1px solid var(--line-2);
-      background: #080808;
-      font: 12px/1.45 var(--mono);
+    .receipt {
+      display: grid;
+      gap: 7px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: #121218;
+      font-size: .8rem;
     }
-    .receipt { display: grid; gap: 7px; padding: 10px 12px; }
-    .receipt .kicker { color: var(--muted); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+    .receipt .kicker, .sources .kicker { color: var(--muted); font-size: .72rem; font-weight: 800; }
     .tool { display: grid; grid-template-columns: 8px 1fr auto; gap: 8px; align-items: center; }
     .tool i {
-      width: 6px; height: 6px; border-radius: 50%;
+      width: 7px; height: 7px; border-radius: 50%;
       background: var(--muted);
     }
-    .tool.running i { background: var(--fg); animation: pulse 1s steps(1) infinite; }
+    .tool.running i { background: var(--fg); animation: pulse 1s ease-in-out infinite; }
     .tool.done i { background: var(--fg); }
     .tool em { font-style: normal; color: var(--muted); }
-    @keyframes pulse { 50% { opacity: .2; } }
-    .live {
-      display: grid; gap: 12px;
-      padding-top: 4px;
-    }
+    @keyframes pulse { 50% { opacity: .25; transform: scale(.7); } }
+    .live { display: grid; gap: 10px; justify-items: start; max-width: min(640px, 100%); }
     .think {
-      display: flex; align-items: center; gap: 12px;
-      font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--bubble);
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 700;
     }
-    .scan {
-      width: 64px; height: 1px; background: #222; position: relative; overflow: hidden;
+    .dots { display: flex; gap: 5px; }
+    .dots i {
+      width: 7px; height: 7px; border-radius: 50%; background: #fff;
+      animation: bounce 1s ease-in-out infinite;
     }
-    .scan b {
-      position: absolute; top: 0; left: 0; width: 22px; height: 1px; background: #fff;
-      animation: sweep 1.2s ease-in-out infinite;
+    .dots i:nth-child(2) { animation-delay: .12s; }
+    .dots i:nth-child(3) { animation-delay: .24s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: .35; }
+      40% { transform: translateY(-4px); opacity: 1; }
     }
-    @keyframes sweep {
-      0% { transform: translateX(-22px); opacity: .15; }
-      45% { opacity: 1; }
-      100% { transform: translateX(64px); opacity: .15; }
+    .sources { display: grid; gap: 8px; width: 100%; }
+    .src-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .src {
+      display: grid;
+      gap: 1px;
+      max-width: 220px;
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: #14141b;
+      text-decoration: none;
+      font-size: .8rem;
+      font-weight: 700;
     }
-    .sources details { padding: 0; }
-    .sources summary {
-      list-style: none; cursor: pointer;
-      padding: 8px 12px; color: var(--muted);
-      letter-spacing: .14em; text-transform: uppercase; font-size: 10px;
-    }
-    .sources summary::-webkit-details-marker { display: none; }
-    .sources pre { margin: 0; padding: 0 12px 12px; overflow: auto; color: #cfcfcf; white-space: pre; }
-    .dock { padding: 0 20px 18px; }
-    .composer { width: min(780px, 100%); margin: 0 auto; display: grid; gap: 8px; }
+    .src small { color: var(--muted); font-size: .7rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dock { padding: 0 18px 18px; }
+    .composer { width: min(760px, 100%); margin: 0 auto; display: grid; gap: 8px; }
     .box {
-      border: 1px solid var(--line-2);
-      background: #090909;
-      padding: 10px;
+      border-radius: 28px;
+      background: #101016;
+      padding: 12px 12px 10px;
+      box-shadow: 0 16px 40px #0006, 0 0 0 1px #ffffff10;
     }
-    .box:focus-within { border-color: #fff; }
+    .box:focus-within { box-shadow: 0 16px 40px #0006, 0 0 0 2px #fff; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 4px 8px; }
     .chip {
       display: flex; align-items: center; gap: 8px;
-      border: 1px solid var(--line-2);
-      padding: 5px 8px;
-      font-size: .75rem;
+      border-radius: 999px;
+      background: #1a1a22;
+      padding: 5px 10px 5px 6px;
+      font-size: .78rem;
+      font-weight: 700;
     }
-    .chip img { width: 22px; height: 22px; object-fit: cover; }
+    .chip img { width: 22px; height: 22px; object-fit: cover; border-radius: 50%; }
     .chip button { border: 0; background: transparent; color: var(--muted); padding: 0; }
     #input {
       border: 0; background: transparent; resize: none; max-height: 180px;
-      padding: 8px 8px 4px; min-height: 44px;
+      padding: 8px 10px 4px; min-height: 44px;
     }
     .bar { display: flex; align-items: center; gap: 8px; padding: 4px 4px 2px; }
-    .modes { display: flex; border: 1px solid var(--line-2); }
+    .modes {
+      display: flex;
+      gap: 2px;
+      padding: 3px;
+      border-radius: 999px;
+      background: #0b0b10;
+    }
     .modes button {
       border: 0; background: transparent; color: var(--muted);
-      padding: 6px 10px; font: 11px var(--mono); letter-spacing: .08em; text-transform: uppercase;
+      padding: 6px 12px; border-radius: 999px; font-size: .78rem; font-weight: 800;
     }
-    .modes button.on { background: #fff; color: #000; }
+    .modes button.on { background: #fff; color: #111; }
     .grow { flex: 1; }
     .send {
-      width: 36px; height: 36px; border: 0; border-radius: 50%;
-      background: #fff; color: #000; display: grid; place-items: center; padding: 0;
+      width: 40px; height: 40px; border: 0; border-radius: 50%;
+      background: #fff; color: #111; display: grid; place-items: center; padding: 0;
     }
     .send svg { width: 15px; height: 15px; }
     .send:disabled { opacity: .35; }
-    .status { min-height: 1.1em; color: var(--muted); font: 11px var(--mono); }
+    .status { min-height: 1.1em; color: var(--muted); font-size: .78rem; padding: 0 12px; }
     .status.bad { color: var(--danger); }
     @media (max-width: 760px) {
       .app { grid-template-columns: 1fr; }
-      .rail { position: fixed; inset: 0 auto 0 0; width: min(280px, 88vw); z-index: 2; transform: translateX(-100%); }
+      .rail { position: fixed; inset: 0 auto 0 0; width: min(280px, 88vw); z-index: 2; transform: translateX(-100%); border-radius: 0 24px 24px 0; }
       .rail.open { transform: none; }
       .scrim { position: fixed; inset: 0; background: #000a; z-index: 1; }
       .thread-inner, .dock { width: auto; }
@@ -293,10 +357,10 @@
                 <input id="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
                 <input id="file" type="file" accept=".html,.htm,.js,.mjs,.cjs,.jsx,.ts,.tsx,.css,.md,.txt,.json,.xml,.svg,.yml,.yaml,.toml,.ini,.csv,.sql,.py,.rb,.go,.rs,.java,.c,.h,.cpp,.cs,.php,.sh,.bash" hidden>
                 <button class="icon" id="photo-btn" type="button" aria-label="Attach photo">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1"></rect><circle cx="8.5" cy="10" r="1.4"></circle><path d="m21 16-5.2-5.2-8.8 8.2"></path></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="4"></rect><circle cx="8.5" cy="10" r="1.4"></circle><path d="m21 16-5.2-5.2-8.8 8.2"></path></svg>
                 </button>
                 <button class="icon" id="file-btn" type="button" aria-label="Attach file">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"></path><path d="M14 3v5h5"></path></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8Z"></path><path d="M14 3v5h5"></path></svg>
                 </button>
                 <button class="send" id="send" type="submit" aria-label="Send">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
@@ -320,9 +384,9 @@
     const MODE_KEY = 'luna_mode';
     const TEXT_EXTS = new Set(['html','htm','js','mjs','cjs','jsx','ts','tsx','css','md','txt','json','xml','svg','yml','yaml','toml','ini','csv','sql','py','rb','go','rs','java','c','h','cpp','cs','php','sh','bash']);
     const MODE_META = {
-      chat: { label: 'chat', effort: 'low' },
-      thinking: { label: 'thinking', effort: 'high' },
-      code: { label: 'code', effort: 'xhigh' },
+      chat: { label: 'Chat', effort: 'low' },
+      thinking: { label: 'Thinking', effort: 'high' },
+      code: { label: 'Code', effort: 'xhigh' },
     };
 
     const $ = (id) => document.getElementById(id);
@@ -342,7 +406,7 @@
     let sending = false;
     let mode = 'chat';
     let attachments = [];
-    let live = { label: 'thinking', tools: [] };
+    let live = { label: 'thinking', tools: [], sources: [] };
 
     function untitled(dm) {
       const raw = String(dm?.title || '').trim();
@@ -387,16 +451,30 @@
       }).join('')}</div>`;
     }
 
+    function sourceHost(url) {
+      try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; }
+    }
+    function safeHttpUrl(url) {
+      try {
+        const parsed = new URL(String(url || ''));
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
+      } catch { return ''; }
+    }
+    function lookupSources(meta) {
+      const seen = new Set();
+      return (meta?.sources || []).flatMap((item) => {
+        const url = safeHttpUrl(item?.url);
+        if (!url || seen.has(url)) return [];
+        seen.add(url);
+        return [{ url, title: String(item.title || sourceHost(url) || url).trim() }];
+      });
+    }
     function sourcesBlock(meta) {
-      if (!meta?.sources?.length && !meta?.files?.length && !meta?.tools?.length) return '';
-      const json = {
-        mode: meta.mode || null,
-        reasoning_effort: meta.reasoning_effort || null,
-        tools: (meta.tools || []).map((t) => ({ name: t.name, detail: t.detail || null })),
-        sources: meta.sources || [],
-        files: (meta.files || []).map((f) => ({ path: f.path, bytes: f.bytes })),
-      };
-      return `<div class="sources"><details><summary>Sources.json</summary><pre>${esc(JSON.stringify(json, null, 2))}</pre></details></div>`;
+      const items = lookupSources(meta);
+      if (!items.length) return '';
+      return `<div class="sources"><div class="kicker">Looked up</div><div class="src-list">${items.map((item) =>
+        `<a class="src" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}<small>${esc(sourceHost(item.url))}</small></a>`
+      ).join('')}</div></div>`;
     }
 
     function artifactCards(files) {
@@ -414,7 +492,7 @@
       const visible = msgs.filter((m) => !m.deleted);
       $('title').textContent = titleOf(current());
       if (!visible.length && !pending) {
-        $('list').innerHTML = `<div class="welcome"><h2>Luna</h2><p>${esc(modeLine())}</p></div>`;
+        $('list').innerHTML = `<div class="welcome"><span class="orb"></span><h2>Luna</h2><p>${esc(modeLine())}</p></div>`;
         return;
       }
       $('list').innerHTML = visible.map((m) => {
@@ -424,9 +502,9 @@
         const file = m.type === 'file' && m.media_url ? `<div class="file"><span>${esc(fileName(m.media_url))}</span><a href="${esc(m.media_url)}" target="_blank" rel="noopener">open</a></div>` : '';
         const files = !mine ? artifactCards(meta.files) : '';
         return `<article class="msg ${mine ? 'me' : ''}">
-          <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && meta.mode ? `<span class="mode-tag">${esc(meta.mode)} · ${esc(meta.reasoning_effort || '')}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
+          <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && meta.mode ? `<span class="mode-tag">${esc(MODE_META[meta.mode]?.label || meta.mode)} · ${esc(meta.reasoning_effort || '')}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
           ${!mine ? toolReceipt(meta.tools) : ''}
-          <div class="body">${renderBody(m.content)}${media}${file}${files}</div>
+          <div class="bubble"><div class="body">${renderBody(m.content)}${media}${file}${files}</div></div>
           ${!mine ? sourcesBlock(meta) : ''}
         </article>`;
       }).join('') + (pending ? liveHtml() : '');
@@ -436,8 +514,9 @@
 
     function liveHtml() {
       return `<div class="live">
-        <div class="think"><span class="scan"><b></b></span>${esc(live.label || 'thinking')}</div>
+        <div class="think"><span class="dots"><i></i><i></i><i></i></span>${esc(live.label || 'thinking')}</div>
         ${toolReceipt(live.tools)}
+        ${sourcesBlock({ sources: live.sources })}
       </div>`;
     }
 
@@ -662,7 +741,7 @@
 
     async function askLuna(message) {
       pending = true;
-      live = { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [] };
+      live = { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [], sources: [] };
       renderList();
       $('send').disabled = true;
       try {
@@ -701,6 +780,7 @@
               if (i >= 0) live.tools[i] = { ...live.tools[i], ...row };
               else live.tools.push(row);
             }
+            if (ev.type === 'sources') live.sources = Array.isArray(ev.sources) ? ev.sources : [];
             if (ev.type === 'error') throw new Error(ev.error || 'Luna could not answer.');
             if (ev.type === 'done') doneId = ev.response_message_id;
             renderList();
