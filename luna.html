@@ -355,11 +355,16 @@
       $('status').textContent = text || '';
       $('status').classList.toggle('bad', !!bad);
     }
+    function modeLine() {
+      return `${MODE_META[mode].label} · ${MODE_META[mode].effort} effort`;
+    }
     function setMode(next) {
       mode = MODE_META[next] ? next : 'chat';
       try { localStorage.setItem(MODE_KEY, mode); } catch {}
       document.querySelectorAll('[data-mode]').forEach((btn) => btn.classList.toggle('on', btn.dataset.mode === mode));
       $('input').placeholder = mode === 'code' ? 'Describe the program' : mode === 'thinking' ? 'Give Luna something to work through' : 'Ask Luna';
+      const welcome = document.querySelector('#list .welcome p');
+      if (welcome) welcome.textContent = modeLine();
     }
 
     function renderChats() {
@@ -409,7 +414,7 @@
       const visible = msgs.filter((m) => !m.deleted);
       $('title').textContent = titleOf(current());
       if (!visible.length && !pending) {
-        $('list').innerHTML = `<div class="welcome"><h2>Luna</h2><p>${MODE_META[mode].label} · ${MODE_META[mode].effort} effort</p></div>`;
+        $('list').innerHTML = `<div class="welcome"><h2>Luna</h2><p>${esc(modeLine())}</p></div>`;
         return;
       }
       $('list').innerHTML = visible.map((m) => {
