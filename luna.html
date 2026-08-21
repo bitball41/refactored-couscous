@@ -94,17 +94,38 @@
     .chat {
       width: 100%;
       display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
       gap: 2px;
-      text-align: left;
-      border: 0;
       border-radius: 18px;
-      background: transparent;
-      padding: 11px 12px;
+      padding: 4px 4px 4px 8px;
     }
     .chat:hover { background: #14141b; }
     .chat.on { background: #1c1c26; }
+    .chat-open {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      padding: 8px 4px;
+    }
     .chat b { font-size: .86rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .chat span { color: var(--muted); font-size: .72rem; }
+    .chat-del {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+    .chat-del:hover { background: #2a2a34; color: var(--fg); }
+    .chat-del svg { width: 14px; height: 14px; }
     .empty { padding: 32px 12px; color: var(--muted); font-size: .86rem; }
     .main { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; min-height: 0; }
     .top {
@@ -268,10 +289,28 @@
     }
     .chip img { width: 22px; height: 22px; object-fit: cover; border-radius: 50%; }
     .chip button { border: 0; background: transparent; color: var(--muted); padding: 0; }
-    #input {
-      border: 0; background: transparent; resize: none; max-height: 180px;
-      padding: 8px 10px 4px; min-height: 44px;
+    .box textarea,
+    .box textarea:focus,
+    .box textarea:focus-visible,
+    #input,
+    #input:focus,
+    #input:focus-visible {
+      display: block;
+      width: 100%;
+      border: 0 !important;
+      outline: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      appearance: none;
+      -webkit-appearance: none;
+      resize: none;
+      max-height: 180px;
+      padding: 8px 10px 4px;
+      min-height: 44px;
+      color: var(--fg);
+      caret-color: var(--fg);
     }
+    #input::placeholder { color: var(--muted); opacity: 1; }
     .bar { display: flex; align-items: center; gap: 8px; padding: 4px 4px 2px; }
     .modes {
       display: flex;
@@ -303,27 +342,27 @@
     }
 
     .auth-screen {
-      --bg: #09003d;
-      --accent: #a78bfa;
-      --text: #f4f2ff;
-      --on-accent: #120a2e;
-      --muted: rgba(244, 242, 255, 0.5);
-      --text-soft: rgba(244, 242, 255, 0.76);
-      --line: rgba(244, 242, 255, 0.11);
-      --line-strong: rgba(244, 242, 255, 0.2);
-      --surface: rgba(244, 242, 255, 0.045);
-      --surface-2: rgba(244, 242, 255, 0.08);
-      --panel-strong: #20194e;
-      --bg-deep: #070031;
-      --accent-soft: rgba(167, 139, 250, 0.15);
-      --accent-line: rgba(167, 139, 250, 0.32);
-      --accent-strong: #bda6fb;
-      --accent-glow: rgba(167, 139, 250, 0.22);
-      --danger: #ff7d91;
+      --bg: #050506;
+      --accent: #ffffff;
+      --text: #f6f6f8;
+      --on-accent: #101014;
+      --muted: #9b9ba6;
+      --text-soft: #c8c8d0;
+      --line: #1c1c22;
+      --line-strong: #2a2a34;
+      --surface: #121217;
+      --surface-2: #17171e;
+      --panel-strong: #101016;
+      --bg-deep: #050506;
+      --accent-soft: rgba(255, 255, 255, 0.08);
+      --accent-line: rgba(255, 255, 255, 0.22);
+      --accent-strong: #ffffff;
+      --accent-glow: rgba(255, 255, 255, 0.14);
+      --danger: #ff7a8a;
       --font-ui: "Montserrat", system-ui, sans-serif;
       --radius-lg: 20px;
-      --shadow: 0 20px 56px rgba(0, 0, 0, 0.34);
-      --focus: 0 0 0 3px rgba(167, 139, 250, 0.38);
+      --shadow: 0 20px 56px rgba(0, 0, 0, 0.55);
+      --focus: 0 0 0 3px rgba(255, 255, 255, 0.28);
       --ease-slide: cubic-bezier(0.32, 0.72, 0, 1);
       --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
       position: fixed; inset: 0; z-index: 30;
@@ -334,12 +373,12 @@
       font-family: var(--font-ui);
       animation: fade-in 250ms ease;
     }
+    .auth-screen .brand-subtitle { color: var(--text); }
     .auth-card {
       width: min(420px, 100%);
       padding: 34px 30px 26px;
-      border: 1px solid var(--line); border-radius: var(--radius-lg);
-      background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line-strong); border-radius: var(--radius-lg);
+      background: var(--panel-strong);
       box-shadow: var(--shadow);
       animation: pop-in 300ms ease;
       overflow: hidden;
@@ -371,18 +410,27 @@
     }
     .auth-tabs button[aria-selected="true"] { color: var(--on-accent); }
     .auth-footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 0.7rem; }
-    .auth-footer button { border: none; background: none; color: var(--muted); font-size: 0.7rem; text-decoration: underline; }
-    .auth-footer button:hover { color: var(--text-soft); }
-    .auth-screen .primary-button {
+    .auth-screen .primary-button,
+    .auth-screen .guest-button {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       min-height: 40px; padding: 9px 18px; width: 100%;
       border-radius: 11px; border: 1px solid transparent;
       font-family: var(--font-ui); font-weight: 700; font-size: 0.82rem;
-      color: var(--on-accent); background: linear-gradient(140deg, var(--accent-strong), var(--accent));
-      transition: filter 130ms ease, transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+      transition: filter 130ms ease, transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out), background 130ms ease, border-color 130ms ease;
     }
-    .auth-screen .primary-button:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-glow); }
+    .auth-screen .primary-button {
+      color: var(--on-accent); background: var(--accent);
+    }
+    .auth-screen .primary-button:hover:not(:disabled) { filter: brightness(0.94); transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-glow); }
     .auth-screen .primary-button:active { transform: translateY(1px); box-shadow: none; }
+    .auth-screen .guest-button {
+      margin-top: 10px;
+      color: var(--text);
+      background: transparent;
+      border-color: var(--line-strong);
+    }
+    .auth-screen .guest-button:hover { background: var(--surface-2); transform: translateY(-1px); }
+    .auth-screen .guest-button:active { transform: translateY(1px); }
     .auth-screen .field { display: grid; gap: 7px; margin-bottom: 14px; }
     .auth-screen .field label { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-soft); }
     .auth-screen .field input {
@@ -416,11 +464,11 @@
         </div>
         <p>Same account as Liminal Chat.</p>
       </div>
-      <div class="auth-tabs" role="tablist" aria-label="Sign in or create account">
-        <button type="button" id="auth-tab-login" role="tab" aria-selected="true">Log in</button>
-        <button type="button" id="auth-tab-signup" role="tab" aria-selected="false">Sign up</button>
+      <div class="auth-tabs signup-active" role="tablist" aria-label="Sign in or create account">
+        <button type="button" id="auth-tab-login" role="tab" aria-selected="false">Log in</button>
+        <button type="button" id="auth-tab-signup" role="tab" aria-selected="true">Sign up</button>
       </div>
-      <form id="login-form">
+      <form id="login-form" hidden>
         <div class="field">
           <label for="login-username">Username</label>
           <input id="login-username" type="text" autocomplete="username" maxlength="20" required>
@@ -436,7 +484,7 @@
         <div class="field-error" id="login-error" role="alert"></div>
         <button class="primary-button" type="submit" id="login-submit">Log in</button>
       </form>
-      <form id="signup-form" hidden>
+      <form id="signup-form">
         <div class="field">
           <label for="signup-display-name">Display name</label>
           <input id="signup-display-name" type="text" autocomplete="name" maxlength="40" required>
@@ -462,9 +510,8 @@
         <div class="field-error" id="signup-error" role="alert"></div>
         <button class="primary-button" type="submit" id="signup-submit">Create account</button>
       </form>
-      <div class="auth-footer">
-        Liminal AI · <button type="button" id="auth-dismiss">Continue as guest</button>
-      </div>
+      <button class="guest-button" type="button" id="auth-dismiss">Continue as guest</button>
+      <div class="auth-footer">Liminal AI</div>
     </div>
   </div>
 
@@ -581,10 +628,20 @@
       $('login-error').textContent = '';
       $('signup-error').textContent = '';
       $('login-forgot').hidden = true;
+      $('boot').hidden = true;
+      setAuthTab('signup');
       $('auth-screen').hidden = false;
-      $('login-username').focus();
+      $('signup-display-name').focus();
     }
     function hideAuth() { $('auth-screen').hidden = true; }
+    function setAuthTab(tab) {
+      const signup = tab === 'signup';
+      $('auth-tab-login').setAttribute('aria-selected', signup ? 'false' : 'true');
+      $('auth-tab-signup').setAttribute('aria-selected', signup ? 'true' : 'false');
+      document.querySelector('.auth-tabs').classList.toggle('signup-active', signup);
+      $('signup-form').hidden = !signup;
+      $('login-form').hidden = signup;
+    }
     function syncAccountChrome() {
       if (isGuest()) {
         $('who').textContent = 'Guest';
@@ -624,10 +681,15 @@
         ? shown.map((d) => {
             const when = d.lastMsg?.created_at || d.created_at;
             const meta = when ? new Date(when).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
-            return `<button class="chat ${d.id === currentId ? 'on' : ''}" type="button" data-id="${esc(d.id)}"><b>${esc(titleOf(d))}</b><span>${esc(meta)}</span></button>`;
+            return `<div class="chat ${d.id === currentId ? 'on' : ''}" data-id="${esc(d.id)}"><button class="chat-open" type="button" data-open="${esc(d.id)}"><b>${esc(titleOf(d))}</b><span>${esc(meta)}</span></button><button class="chat-del" type="button" data-del="${esc(d.id)}" aria-label="Delete conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>`;
           }).join('')
         : '<div class="empty">No threads yet.</div>';
-      $('chats').querySelectorAll('[data-id]').forEach((btn) => btn.addEventListener('click', () => openChat(btn.dataset.id)));
+      $('chats').querySelectorAll('[data-open]').forEach((btn) => btn.addEventListener('click', () => openChat(btn.dataset.open)));
+      $('chats').querySelectorAll('[data-del]').forEach((btn) => btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        deleteChat(btn.dataset.del);
+      }));
     }
 
     function toolSummary(tools) {
@@ -911,20 +973,56 @@
       return currentId;
     }
 
-    async function maybeTitle(content) {
+    function applyTitle(title) {
+      const dm = current();
+      const candidate = String(title || '').replace(/\s+/g, ' ').trim().slice(0, 64);
+      if (!dm || !candidate) return;
+      dm.title = candidate;
+      $('title').textContent = titleOf(dm);
+      renderChats();
+      persistGuest();
+    }
+    async function maybeTitle(ev) {
       const dm = current();
       if (!dm || !untitled(dm)) return;
-      const candidate = String(content || '').replace(/\s+/g, ' ').trim().slice(0, 64);
-      if (!candidate) return;
-      if (isGuest()) {
-        dm.title = candidate;
-        renderChats(); renderList(); persistGuest();
+      const named = String(ev?.title || '').replace(/\s+/g, ' ').trim();
+      if (named && !untitled({ title: named })) {
+        applyTitle(named);
+        if (!isGuest()) {
+          await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named }).catch(() => null);
+        }
         return;
       }
-      const { data, error } = await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: candidate });
-      if (error || !data) return;
-      dm.title = String(data);
-      renderChats(); renderList();
+      const source = String((msgs.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
+      const words = source.split(' ').filter((w) => w && !/^https?:/i.test(w)).slice(0, 5);
+      if (words.length >= 2) applyTitle(words.join(' '));
+    }
+
+    async function deleteChat(id) {
+      const dm = chats.find((d) => d.id === id);
+      if (!dm) return;
+      const nextId = currentId === id
+        ? (chats.find((d) => d.id !== id && !isEmpty(d))?.id || chats.find((d) => d.id !== id)?.id || null)
+        : currentId;
+      chats = chats.filter((d) => d.id !== id);
+      persistGuest();
+      if (currentId === id) await openChat(nextId);
+      else renderChats();
+      if (isGuest()) return;
+      try {
+        const { data: sessionData } = await sb.auth.getSession();
+        const token = sessionData.session?.access_token;
+        if (!token) throw new Error('Your session expired. Sign in again.');
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
+          method: 'POST',
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete_conversation', dm_id: id }),
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(payload.error || 'Could not delete conversation.');
+      } catch (err) {
+        setStatus(err?.message || 'Could not delete conversation.', true);
+      }
     }
 
     async function compressImage(file) {
@@ -1040,6 +1138,7 @@
             body: JSON.stringify({
               action: 'guest_reply',
               mode,
+              needs_title: untitled(current()),
               messages: msgs.filter((m) => !m.deleted).map((m) => ({
                 id: m.id, sender: m.sender, content: m.content, type: m.type, media_url: m.media_url,
               })),
@@ -1064,6 +1163,7 @@
               deleted: false,
               created_at: new Date().toISOString(),
             });
+            await maybeTitle(ev);
           });
           return;
         }
@@ -1080,6 +1180,7 @@
           if (!doneId) return;
           const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', doneId).maybeSingle();
           if (row) ingest(row);
+          await maybeTitle(ev);
         });
       } catch (err) {
         setStatus(err?.message || 'Liminal could not answer.', true);
@@ -1150,7 +1251,6 @@
             last = data;
           }
         }
-        void maybeTitle(content || queued[0]?.name || '');
         void askLuna(last);
       } catch (err) {
         input.value = content;
@@ -1351,24 +1451,20 @@
 
     function wireAuth() {
       $('auth-tab-login').addEventListener('click', () => {
-        $('auth-tab-login').setAttribute('aria-selected', 'true');
-        $('auth-tab-signup').setAttribute('aria-selected', 'false');
-        document.querySelector('.auth-tabs').classList.remove('signup-active');
-        $('signup-form').hidden = true;
-        $('login-form').hidden = false;
+        setAuthTab('login');
         $('login-username').focus();
       });
       $('auth-tab-signup').addEventListener('click', () => {
-        $('auth-tab-login').setAttribute('aria-selected', 'false');
-        $('auth-tab-signup').setAttribute('aria-selected', 'true');
-        document.querySelector('.auth-tabs').classList.add('signup-active');
-        $('login-form').hidden = true;
-        $('signup-form').hidden = false;
+        setAuthTab('signup');
         $('signup-display-name').focus();
       });
       $('login-form').addEventListener('submit', handleLogin);
       $('signup-form').addEventListener('submit', handleSignup);
-      $('auth-dismiss').addEventListener('click', hideAuth);
+      $('auth-dismiss').addEventListener('click', () => {
+        hideAuth();
+        if (isGuest() && !$('app').hidden) return;
+        bootGuest();
+      });
       document.querySelectorAll('[data-pw-toggle]').forEach((btn) => btn.addEventListener('click', () => {
         const input = $(btn.dataset.pwToggle);
         const show = input.type === 'password';
@@ -1443,7 +1539,7 @@
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: localStorage },
       });
       wire();
-      if (!await restore()) bootGuest();
+      if (!await restore()) showAuth();
     });
   </script>
 </body>
