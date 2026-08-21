@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#09003d">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'none'"
+  >
+  <title>Luna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://ucgjwrjqmexenmrpbdkh.supabase.co" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2/dist/umd/supabase.min.js" integrity="sha384-JWEyvHh+lRf0sN/WWY+QTQwX+CyWqmNg4tkc8GQzAMEtR2wGNrCJlvnu1lHD1kDm" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #09003d;
+      --accent: #a78bfa;
+      --text: #f4f2ff;
+      --muted: color-mix(in srgb, var(--text) 52%, transparent);
+      --line: color-mix(in srgb, var(--text) 12%, transparent);
+      --surface: color-mix(in srgb, var(--text) 5%, transparent);
+      --panel: color-mix(in srgb, var(--bg) 92%, black);
+      --danger: #ff7d91;
+      --font: "Montserrat", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.45 var(--font);
+    }
+    button, textarea, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    [hidden] { display: none !important; }
+    .screen {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(360px, 100%);
+      display: grid;
+      gap: 12px;
+    }
+    .card h1 { margin: 0; font-size: 1.4rem; letter-spacing: -.03em; }
+    .card p, .hint { margin: 0; color: var(--muted); font-size: .82rem; }
+    label { display: grid; gap: 6px; font-size: .75rem; font-weight: 600; }
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      padding: 10px 12px;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+    .primary, .ghost, .icon {
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #120a2e;
+      font-weight: 700;
+      padding: 10px 14px;
+    }
+    .ghost, .icon {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .icon { width: 36px; height: 36px; padding: 0; display: grid; place-items: center; }
+    .icon svg { width: 16px; height: 16px; }
+    .err { color: var(--danger); font-size: .78rem; min-height: 1.1em; }
+    .app {
+      height: 100%;
+      display: grid;
+      grid-template-columns: 252px minmax(0, 1fr);
+    }
+    .rail {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      min-height: 0;
+    }
+    .rail-head, .rail-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 14px;
+    }
+    .rail-head strong { font-size: .95rem; }
+    .rail-foot { border-top: 1px solid var(--line); color: var(--muted); font-size: .72rem; }
+    .rail-foot a { color: inherit; }
+    .chats { overflow: auto; padding: 6px; }
+    .chat {
+      width: 100%;
+      display: grid;
+      gap: 2px;
+      text-align: left;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text);
+      padding: 9px 10px;
+    }
+    .chat:hover { background: var(--surface); }
+    .chat.on { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    .chat b { font-size: .78rem; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chat span { color: var(--muted); font-size: .66rem; }
+    .empty { padding: 28px 12px; color: var(--muted); font-size: .78rem; text-align: center; }
+    .main { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; min-height: 0; }
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .top h1 { margin: 0; font-size: .95rem; font-weight: 700; }
+    .thread { overflow: auto; padding: 18px 0; }
+    .thread-inner { width: min(760px, calc(100% - 32px)); margin: 0 auto; display: grid; gap: 18px; }
+    .msg { display: grid; gap: 6px; }
+    .msg.me .who { color: var(--muted); }
+    .who { display: flex; align-items: baseline; gap: 8px; font-size: .72rem; font-weight: 700; }
+    .who time, .who .effort { color: var(--muted); font-weight: 500; }
+    .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .body a { color: var(--accent); }
+    .body img { max-width: min(420px, 100%); border-radius: 12px; display: block; margin-top: 8px; }
+    .md-h { margin: .4em 0 .2em; font-size: 1.05em; }
+    .md-quote { display: block; border-left: 2px solid var(--accent); padding-left: 10px; color: var(--muted); }
+    .md-subtext { display: block; color: var(--muted); font-size: .78em; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .86em; background: var(--surface); padding: .1em .35em; border-radius: 6px; }
+    .code { margin: 8px 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: color-mix(in srgb, var(--bg) 70%, black); }
+    .code header { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; color: var(--muted); font-size: .68rem; }
+    .code pre { margin: 0; padding: 10px 12px; overflow: auto; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .code button { border: 0; background: transparent; color: var(--muted); padding: 0; font-size: .68rem; }
+    .spoiler { background: var(--text); color: transparent; border-radius: 4px; cursor: pointer; }
+    .spoiler.on { background: var(--surface); color: inherit; }
+    .composer { width: min(760px, calc(100% - 32px)); margin: 0 auto 16px; }
+    form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: end;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      padding: 8px;
+    }
+    textarea { border: 0; background: transparent; resize: none; max-height: 160px; field-sizing: content; }
+    .status { min-height: 1.2em; margin: 6px 2px 0; color: var(--muted); font-size: .72rem; }
+    .status.bad { color: var(--danger); }
+    @media (max-width: 720px) {
+      .app { grid-template-columns: 1fr; }
+      .rail { position: fixed; inset: 0 auto 0 0; width: min(280px, 86vw); z-index: 2; transform: translateX(-100%); }
+      .rail.open { transform: none; }
+      .scrim { position: fixed; inset: 0; background: #0008; z-index: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen" id="boot">Starting Luna…</div>
+
+  <div class="screen" id="auth" hidden>
+    <form class="card" id="login">
+      <h1>Luna</h1>
+      <p>Sign in with your Liminal account.</p>
+      <label>Username <input id="user" autocomplete="username" maxlength="20" required></label>
+      <label>Password <input id="pass" type="password" autocomplete="current-password" required></label>
+      <div class="err" id="login-err"></div>
+      <button class="primary" type="submit">Sign in</button>
+      <p class="hint">No account yet? Create one in <a href="chat.html">Liminal Chat</a>.</p>
+    </form>
+  </div>
+
+  <div class="app" id="app" hidden>
+    <div class="scrim" id="scrim" hidden></div>
+    <aside class="rail" id="rail">
+      <div class="rail-head">
+        <strong>Luna</strong>
+        <button class="ghost" id="new" type="button">New</button>
+      </div>
+      <nav class="chats" id="chats"></nav>
+      <div class="rail-foot">
+        <span id="who"></span>
+        <span><a href="chat.html">Chat</a> · <button class="ghost" id="out" type="button" style="padding:4px 8px;font-size:.72rem">Sign out</button></span>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="top">
+        <button class="icon" id="menu" type="button" aria-label="Conversations" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        </button>
+        <h1 id="title">New conversation</h1>
+      </header>
+      <section class="thread" id="thread">
+        <div class="thread-inner" id="list"></div>
+      </section>
+      <div class="composer">
+        <form id="form">
+          <textarea id="input" rows="1" maxlength="2000" placeholder="Message Luna" aria-label="Message Luna"></textarea>
+          <button class="primary" type="submit">Send</button>
+        </form>
+        <div class="status" id="status"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ucgjwrjqmexenmrpbdkh.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_BODuji68eJDK34su6xVuwg_B_tXwFaL';
+    const AI_USERNAME = 'Luna';
+    const AI_FUNCTION = 'chatgpt-luna';
+    const COLS = 'id,dm_id,sender,content,type,media_url,reply_to,deleted,edited,created_at';
+    const LAST_KEY = 'luna_dm';
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t ?? '')
+      .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+    const emailOf = (name) => `${String(name || '').trim().toLowerCase()}@accounts.liminal.invalid`;
+    const timeFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
+
+    let sb, me;
+    let chats = [];
+    let currentId = null;
+    let msgs = [];
+    let seen = new Set();
+    let pending = false;
+    let sending = false;
+
+    function untitled(dm) {
+      const raw = String(dm?.title || '').trim();
+      return !raw || /^(new( luna)? chat|luna chat|new conversation)$/i.test(raw);
+    }
+    function titleOf(dm) {
+      return untitled(dm) ? 'New conversation' : dm.title;
+    }
+    function isEmpty(dm) {
+      return dm && !dm.lastMsg && untitled(dm);
+    }
+    function current() {
+      return chats.find((d) => d.id === currentId) || null;
+    }
+
+    function setStatus(text, bad) {
+      $('status').textContent = text || '';
+      $('status').classList.toggle('bad', !!bad);
+    }
+
+    function renderChats() {
+      const shown = chats.filter((d) => !isEmpty(d) || d.id === currentId);
+      $('chats').innerHTML = shown.length
+        ? shown.map((d) => {
+            const when = d.lastMsg?.created_at || d.created_at;
+            const meta = when ? new Date(when).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
+            return `<button class="chat ${d.id === currentId ? 'on' : ''}" type="button" data-id="${esc(d.id)}"><b>${esc(titleOf(d))}</b><span>${esc(meta)}</span></button>`;
+          }).join('')
+        : '<div class="empty">No conversations yet.</div>';
+      $('chats').querySelectorAll('[data-id]').forEach((btn) => {
+        btn.addEventListener('click', () => openChat(btn.dataset.id));
+      });
+    }
+
+    function renderList() {
+      const visible = msgs.filter((m) => !m.deleted);
+      $('title').textContent = titleOf(current());
+      if (!visible.length) {
+        $('list').innerHTML = '';
+        return;
+      }
+      $('list').innerHTML = visible.map((m) => {
+        const mine = m.sender === me.username;
+        const effort = !mine && m.reply_to?.reasoning_effort === 'high';
+        const who = mine ? 'You' : AI_USERNAME;
+        const media = (m.type === 'image' || m.type === 'gif') && m.media_url
+          ? `<img src="${esc(m.media_url)}" alt="">`
+          : '';
+        return `<article class="msg ${mine ? 'me' : ''}">
+          <div class="who">${esc(who)}${effort ? '<span class="effort">high effort</span>' : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
+          <div class="body">${renderBody(m.content)}${media}</div>
+        </article>`;
+      }).join('');
+      $('list').querySelectorAll('.spoiler').forEach((el) => {
+        el.addEventListener('click', () => el.classList.add('on'));
+      });
+      $('list').querySelectorAll('.code button').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const code = btn.closest('.code')?.querySelector('code');
+          if (!code) return;
+          try { await navigator.clipboard.writeText(code.textContent || ''); btn.textContent = 'Copied'; }
+          catch { btn.textContent = 'Copy failed'; }
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+      $('thread').scrollTop = $('thread').scrollHeight;
+    }
+
+    const URL_RE = /https?:\/\/[^\s<>"'`]+/g;
+    const PL = '\u0001';
+    function renderBody(raw) {
+      const tokens = [];
+      const hold = (html) => { tokens.push(html); return PL + (tokens.length - 1) + PL; };
+      let text = String(raw || '');
+      text = text.replace(/```([A-Za-z0-9+#._-]*)[ \t]*\r?\n([\s\S]*?)```/g, (_, lang, code) => {
+        return hold(`<section class="code"><header><span>${esc(lang || 'code')}</span><button type="button">Copy</button></header><pre><code>${highlight(code.replace(/\n$/, ''), lang)}</code></pre></section>`);
+      });
+      text = text.replace(/`([^`\n]+)`/g, (_, code) => hold(`<code>${esc(code)}</code>`));
+      text = text.replace(URL_RE, (m) => {
+        const trail = m.match(/[.,;:!?]+$/)?.[0] || '';
+        if (trail) m = m.slice(0, -trail.length);
+        const label = m.length > 64 ? m.slice(0, 61) + '…' : m;
+        return hold(`<a href="${esc(m)}" target="_blank" rel="noopener noreferrer nofollow">${esc(label)}</a>`) + trail;
+      });
+      const lines = esc(text).split('\n').map((line) => {
+        const q = /^&gt;\s(.*)$/.exec(line);
+        if (q) return `<span class="md-quote">${inline(q[1])}</span>`;
+        const h = /^(#{1,3})\s+(.+)$/.exec(line);
+        if (h) return `<h${h[1].length} class="md-h">${inline(h[2])}</h${h[1].length}>`;
+        const sub = /^-#\s+(.+)$/.exec(line);
+        if (sub) return `<span class="md-subtext">${inline(sub[1])}</span>`;
+        return inline(line);
+      });
+      return lines.join('\n').replace(new RegExp(PL + '(\\d+)' + PL, 'g'), (_, i) => tokens[Number(i)] || _);
+    }
+    function inline(s) {
+      return s
+        .replace(/\|\|([\s\S]+?)\|\|/g, '<span class="spoiler">$1</span>')
+        .replace(/\*\*\*([\s\S]+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+        .replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^\s*](?:[^*\n]*[^\s*])?)\*/g, '<em>$1</em>')
+        .replace(/~~([\s\S]+?)~~/g, '<s>$1</s>')
+        .replace(/__([^_\n]+?)__/g, '<u>$1</u>');
+    }
+    function highlight(code, language) {
+      const held = [];
+      const hold = (html) => String.fromCharCode(0xE000 + held.push(html) - 1);
+      let text = String(code || '');
+      text = text.replace(/(["'`])(?:\\.|(?!\1)[^\\\r\n])*\1/g, (m) => hold(`<span style="color:#f0c27a">${esc(m)}</span>`));
+      text = text.replace(/\/\*[\s\S]*?\*\/|\/\/[^\r\n]*/g, (m) => hold(`<span style="color:#8b83a9">${esc(m)}</span>`));
+      text = esc(text)
+        .replace(/\b(const|let|var|function|return|if|else|for|while|async|await|class|new|import|from|export|default|try|catch|throw|def|SELECT|FROM|WHERE)\b/g, '<span style="color:#c4b5fd">$1</span>')
+        .replace(/\b(true|false|null|undefined)\b/g, '<span style="color:#86efac">$1</span>')
+        .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span style="color:#fda4af">$1</span>');
+      return text.replace(/[\uE000-\uF8FF]/g, (t) => held[t.charCodeAt(0) - 0xE000] || t);
+    }
+
+    async function loadChats() {
+      const { data, error } = await sb.from('dms').select('*').contains('participants', [me.username]);
+      if (error) throw error;
+      chats = (data || [])
+        .map((d) => ({ ...d, other: (d.participants || []).find((u) => u !== me.username), lastMsg: null }))
+        .filter((d) => d.other === AI_USERNAME);
+      if (chats.length) {
+        const ids = chats.map((d) => d.id);
+        const { data: lasts } = await sb.from('dm_messages')
+          .select('dm_id,sender,content,type,created_at,deleted')
+          .in('dm_id', ids).order('created_at', { ascending: false }).limit(400);
+        const seenLast = new Set();
+        (lasts || []).forEach((m) => {
+          if (seenLast.has(m.dm_id)) return;
+          seenLast.add(m.dm_id);
+          const dm = chats.find((d) => d.id === m.dm_id);
+          if (dm) dm.lastMsg = m;
+        });
+      }
+      chats.sort((a, b) => {
+        const ta = a.lastMsg?.created_at || a.created_at;
+        const tb = b.lastMsg?.created_at || b.created_at;
+        return new Date(tb) - new Date(ta);
+      });
+    }
+
+    async function loadMessages(id) {
+      const { data, error } = await sb.from('dm_messages')
+        .select(COLS).eq('dm_id', id).order('created_at', { ascending: true }).limit(200);
+      if (error) throw error;
+      msgs = data || [];
+      seen = new Set(msgs.map((m) => m.id));
+    }
+
+    function ingest(m) {
+      if (!m?.id || seen.has(m.id)) return;
+      if (!chats.some((d) => d.id === m.dm_id)) return;
+      seen.add(m.id);
+      const dm = chats.find((d) => d.id === m.dm_id);
+      if (dm) dm.lastMsg = m;
+      chats.sort((a, b) => new Date(b.lastMsg?.created_at || b.created_at) - new Date(a.lastMsg?.created_at || a.created_at));
+      if (m.dm_id === currentId) {
+        msgs.push(m);
+        if (m.sender === AI_USERNAME) {
+          pending = false;
+          setStatus('');
+        }
+        renderList();
+      }
+      renderChats();
+    }
+
+    async function openChat(id) {
+      currentId = id;
+      try { sessionStorage.setItem(LAST_KEY, id || ''); } catch {}
+      closeRail();
+      if (!id) {
+        msgs = [];
+        seen = new Set();
+        renderChats();
+        renderList();
+        setStatus('');
+        $('input').focus();
+        return;
+      }
+      await loadMessages(id);
+      renderChats();
+      renderList();
+      $('input').focus();
+    }
+
+    async function ensureChat() {
+      if (currentId) return currentId;
+      const reusable = chats.find(isEmpty);
+      if (reusable) {
+        currentId = reusable.id;
+        return currentId;
+      }
+      const parts = [me.username, AI_USERNAME].sort();
+      const { data, error } = await sb.from('dms').insert({ participants: parts, title: 'New conversation' }).select().single();
+      if (error || !data) throw new Error(error?.message || 'Could not start a conversation.');
+      const dm = { ...data, other: AI_USERNAME, lastMsg: null };
+      chats.unshift(dm);
+      currentId = dm.id;
+      try { sessionStorage.setItem(LAST_KEY, currentId); } catch {}
+      return currentId;
+    }
+
+    async function maybeTitle(content) {
+      const dm = current();
+      if (!dm || !untitled(dm)) return;
+      const candidate = String(content || '').replace(/\s+/g, ' ').trim().slice(0, 64);
+      if (!candidate) return;
+      const { data, error } = await sb.rpc('chat_update_luna_conversation_title', {
+        p_dm_id: dm.id,
+        p_title: candidate,
+      });
+      if (error || !data) return;
+      dm.title = String(data);
+      renderChats();
+      renderList();
+    }
+
+    async function functionError(error, data) {
+      if (data?.error) return String(data.error);
+      const response = error?.context;
+      if (response && typeof response.json === 'function') {
+        try {
+          const payload = await response.json();
+          if (payload?.error) return String(payload.error);
+        } catch {}
+      }
+      if (response?.status === 401) return 'Your session expired. Sign in again.';
+      if (response?.status === 429) return 'Luna is busy. Retry shortly.';
+      if (response?.status >= 500) return 'Luna hit a provider problem. Retry in a moment.';
+      const message = String(error?.message || '');
+      return message && !/non-2xx status code/i.test(message) ? message : 'Luna could not complete that request.';
+    }
+
+    async function askLuna(message) {
+      pending = true;
+      setStatus('Luna is answering…');
+      try {
+        const { data, error } = await sb.functions.invoke(AI_FUNCTION, {
+          body: { action: 'reply', source_message_id: message.id },
+        });
+        if (error || data?.error) throw new Error(await functionError(error, data));
+        if (data?.response_message_id) {
+          const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', data.response_message_id).maybeSingle();
+          if (row) ingest(row);
+        }
+        if (pending) setStatus('Luna is answering…');
+      } catch (err) {
+        pending = false;
+        setStatus(err?.message || 'Luna could not answer.', true);
+      }
+    }
+
+    async function send(event) {
+      event.preventDefault();
+      if (sending || pending) return;
+      const input = $('input');
+      const content = input.value.trim();
+      if (!content) return;
+      sending = true;
+      input.value = '';
+      input.style.height = 'auto';
+      try {
+        const dmId = await ensureChat();
+        const row = { sender: me.username, content, type: 'text', dm_id: dmId, read_by: [me.username] };
+        const { data, error } = await sb.from('dm_messages').insert(row).select(COLS).single();
+        if (error || !data) throw new Error(error?.message || 'Message failed to send.');
+        ingest(data);
+        void maybeTitle(content);
+        void askLuna(data);
+      } catch (err) {
+        input.value = content;
+        setStatus(err?.message || 'Message failed to send.', true);
+      } finally {
+        sending = false;
+        input.focus();
+      }
+    }
+
+    function setupRealtime() {
+      sb.channel('luna-dms')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dm_messages' }, ({ new: row }) => {
+          if (row) ingest(row);
+        })
+        .subscribe();
+    }
+
+    function closeRail() {
+      $('rail').classList.remove('open');
+      $('scrim').hidden = true;
+    }
+
+    async function boot(profile) {
+      me = profile;
+      $('boot').hidden = true;
+      $('auth').hidden = true;
+      $('app').hidden = false;
+      $('who').textContent = `@${me.username}`;
+      await loadChats();
+      setupRealtime();
+      const saved = (() => { try { return sessionStorage.getItem(LAST_KEY); } catch { return ''; } })();
+      const start = chats.find((d) => d.id === saved)?.id || chats[0]?.id || null;
+      await openChat(start);
+    }
+
+    async function restore() {
+      const { data: sessionData } = await sb.auth.getSession();
+      if (!sessionData.session) return false;
+      const { data: profile, error } = await sb.rpc('chat_get_my_profile');
+      if (error || !profile) {
+        await sb.auth.signOut({ scope: 'local' });
+        return false;
+      }
+      if (profile.is_banned) {
+        $('boot').textContent = 'This account is banned.';
+        return true;
+      }
+      await boot(profile);
+      return true;
+    }
+
+    async function login(event) {
+      event.preventDefault();
+      const err = $('login-err');
+      err.textContent = '';
+      const username = $('user').value.trim();
+      const password = $('pass').value;
+      const btn = event.submitter;
+      btn.disabled = true;
+      try {
+        const { error } = await sb.auth.signInWithPassword({ email: emailOf(username), password });
+        if (error) { err.textContent = 'Wrong username or password.'; return; }
+        const { data: profile, error: profileError } = await sb.rpc('chat_get_my_profile');
+        if (profileError || !profile) {
+          await sb.auth.signOut({ scope: 'local' });
+          err.textContent = `No Liminal profile exists for "${username}".`;
+          return;
+        }
+        if (profile.is_banned) { err.textContent = 'This account is banned.'; return; }
+        await boot(profile);
+      } catch {
+        err.textContent = 'Could not reach the server.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function wire() {
+      $('login').addEventListener('submit', login);
+      $('form').addEventListener('submit', send);
+      $('new').addEventListener('click', () => openChat(isEmpty(current()) ? currentId : null));
+      $('out').addEventListener('click', async () => {
+        try { await sb.auth.signOut({ scope: 'local' }); } catch {}
+        location.reload();
+      });
+      $('menu').addEventListener('click', () => {
+        $('rail').classList.add('open');
+        $('scrim').hidden = false;
+      });
+      $('scrim').addEventListener('click', closeRail);
+      const input = $('input');
+      input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('form').requestSubmit(); }
+      });
+      const mq = matchMedia('(max-width: 720px)');
+      const syncMenu = () => { $('menu').hidden = !mq.matches; if (!mq.matches) closeRail(); };
+      mq.addEventListener?.('change', syncMenu);
+      syncMenu();
+    }
+
+    function waitForSupabase() {
+      if (window.supabase) return Promise.resolve(true);
+      return new Promise((resolve) => {
+        const started = Date.now();
+        const tick = () => {
+          if (window.supabase) return resolve(true);
+          if (Date.now() - started > 12000) return resolve(false);
+          setTimeout(tick, 60);
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick, { once: true });
+        else tick();
+      });
+    }
+
+    waitForSupabase().then(async (ready) => {
+      if (!ready) { $('boot').textContent = 'Could not load supabase-js. Allow cdn.jsdelivr.net and reload.'; return; }
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: localStorage },
+      });
+      wire();
+      if (!await restore()) {
+        $('boot').hidden = true;
+        $('auth').hidden = false;
+        $('user').focus();
+      }
+    });
+  </script>
+</body>
+</html>
