@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#09003d">
+  <meta name="theme-color" content="#000000">
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'none'"
@@ -14,75 +14,58 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://ucgjwrjqmexenmrpbdkh.supabase.co" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2/dist/umd/supabase.min.js" integrity="sha384-JWEyvHh+lRf0sN/WWY+QTQwX+CyWqmNg4tkc8GQzAMEtR2wGNrCJlvnu1lHD1kDm" crossorigin="anonymous"></script>
   <style>
     :root {
-      --bg: #09003d;
-      --accent: #a78bfa;
-      --text: #f4f2ff;
-      --muted: color-mix(in srgb, var(--text) 52%, transparent);
-      --line: color-mix(in srgb, var(--text) 12%, transparent);
-      --surface: color-mix(in srgb, var(--text) 5%, transparent);
-      --panel: color-mix(in srgb, var(--bg) 92%, black);
-      --danger: #ff7d91;
-      --font: "Montserrat", system-ui, sans-serif;
+      --bg: #000;
+      --fg: #f4f4f4;
+      --muted: #8a8a8a;
+      --line: #1d1d1d;
+      --line-2: #2c2c2c;
+      --panel: #070707;
+      --danger: #ff6b6b;
+      --sans: "IBM Plex Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --display: Syne, var(--sans);
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0;
       background: var(--bg);
-      color: var(--text);
-      font: 15px/1.45 var(--font);
+      color: var(--fg);
+      font: 15px/1.5 var(--sans);
     }
     button, textarea, input { font: inherit; color: inherit; }
     button { cursor: pointer; }
     [hidden] { display: none !important; }
-    .screen {
-      min-height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-    .card {
-      width: min(360px, 100%);
-      display: grid;
-      gap: 12px;
-    }
-    .card h1 { margin: 0; font-size: 1.4rem; letter-spacing: -.03em; }
-    .card p, .hint { margin: 0; color: var(--muted); font-size: .82rem; }
-    label { display: grid; gap: 6px; font-size: .75rem; font-weight: 600; }
+    a { color: inherit; }
+    .screen { min-height: 100%; display: grid; place-items: center; padding: 28px; }
+    .card { width: min(340px, 100%); display: grid; gap: 14px; }
+    .mark { margin: 0; font: 800 2.1rem/1 var(--display); letter-spacing: -.06em; }
+    .card p { margin: 0; color: var(--muted); font-size: .84rem; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
     input, textarea {
       width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--surface);
-      padding: 10px 12px;
+      border: 1px solid var(--line-2);
+      border-radius: 0;
+      background: transparent;
+      padding: 11px 12px;
       outline: none;
     }
-    input:focus, textarea:focus { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
-    .primary, .ghost, .icon {
+    input:focus, textarea:focus { border-color: var(--fg); }
+    .go {
       border: 0;
-      border-radius: 10px;
-      background: var(--accent);
-      color: #120a2e;
-      font-weight: 700;
-      padding: 10px 14px;
+      background: var(--fg);
+      color: #000;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 12px;
     }
-    .ghost, .icon {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-    .icon { width: 36px; height: 36px; padding: 0; display: grid; place-items: center; }
-    .icon svg { width: 16px; height: 16px; }
     .err { color: var(--danger); font-size: .78rem; min-height: 1.1em; }
-    .app {
-      height: 100%;
-      display: grid;
-      grid-template-columns: 252px minmax(0, 1fr);
-    }
+    .app { height: 100%; display: grid; grid-template-columns: 240px minmax(0, 1fr); }
     .rail {
       display: grid;
       grid-template-rows: auto 1fr auto;
@@ -95,90 +78,179 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 14px;
+      padding: 16px;
     }
-    .rail-head strong { font-size: .95rem; }
-    .rail-foot { border-top: 1px solid var(--line); color: var(--muted); font-size: .72rem; }
-    .rail-foot a { color: inherit; }
-    .chats { overflow: auto; padding: 6px; }
+    .rail-head strong { font: 800 .95rem/1 var(--display); letter-spacing: -.04em; }
+    .quiet {
+      border: 1px solid var(--line-2);
+      background: transparent;
+      padding: 6px 9px;
+      font-size: .68rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .rail-foot { border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; }
+    .chats { overflow: auto; padding: 8px; }
     .chat {
       width: 100%;
       display: grid;
       gap: 2px;
       text-align: left;
       border: 0;
-      border-radius: 10px;
       background: transparent;
-      color: var(--text);
-      padding: 9px 10px;
+      padding: 10px 10px;
     }
-    .chat:hover { background: var(--surface); }
-    .chat.on { background: color-mix(in srgb, var(--accent) 14%, transparent); }
-    .chat b { font-size: .78rem; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .chat span { color: var(--muted); font-size: .66rem; }
-    .empty { padding: 28px 12px; color: var(--muted); font-size: .78rem; text-align: center; }
+    .chat:hover { background: #111; }
+    .chat.on { background: #161616; }
+    .chat b { font-size: .8rem; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chat span { color: var(--muted); font: 11px var(--mono); }
+    .empty { padding: 32px 12px; color: var(--muted); font-size: .78rem; }
     .main { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; min-height: 0; }
     .top {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
+      gap: 12px;
+      padding: 14px 22px;
       border-bottom: 1px solid var(--line);
     }
-    .top h1 { margin: 0; font-size: .95rem; font-weight: 700; }
-    .thread { overflow: auto; padding: 18px 0; }
-    .thread-inner { width: min(760px, calc(100% - 32px)); margin: 0 auto; display: grid; gap: 18px; }
-    .msg { display: grid; gap: 6px; }
-    .msg.me .who { color: var(--muted); }
-    .who { display: flex; align-items: baseline; gap: 8px; font-size: .72rem; font-weight: 700; }
-    .who time, .who .effort { color: var(--muted); font-weight: 500; }
-    .body { white-space: pre-wrap; overflow-wrap: anywhere; }
-    .body a { color: var(--accent); }
-    .body img { max-width: min(420px, 100%); border-radius: 12px; display: block; margin-top: 8px; }
-    .md-h { margin: .4em 0 .2em; font-size: 1.05em; }
-    .md-quote { display: block; border-left: 2px solid var(--accent); padding-left: 10px; color: var(--muted); }
-    .md-subtext { display: block; color: var(--muted); font-size: .78em; }
-    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .86em; background: var(--surface); padding: .1em .35em; border-radius: 6px; }
-    .code { margin: 8px 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: color-mix(in srgb, var(--bg) 70%, black); }
-    .code header { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; color: var(--muted); font-size: .68rem; }
-    .code pre { margin: 0; padding: 10px 12px; overflow: auto; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
-    .code button { border: 0; background: transparent; color: var(--muted); padding: 0; font-size: .68rem; }
-    .spoiler { background: var(--text); color: transparent; border-radius: 4px; cursor: pointer; }
-    .spoiler.on { background: var(--surface); color: inherit; }
-    .composer { width: min(760px, calc(100% - 32px)); margin: 0 auto 16px; }
-    #form {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: end;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--surface);
-      padding: 8px;
+    .top h1 { margin: 0; font-size: .92rem; font-weight: 550; }
+    .icon {
+      width: 34px; height: 34px; padding: 0;
+      display: grid; place-items: center;
+      border: 1px solid var(--line-2);
+      background: transparent;
     }
-    #input { border: 0; background: transparent; resize: none; max-height: 160px; field-sizing: content; }
-    .status { min-height: 1.2em; margin: 6px 2px 0; color: var(--muted); font-size: .72rem; }
+    .icon svg { width: 16px; height: 16px; }
+    .thread { overflow: auto; }
+    .thread-inner { width: min(780px, calc(100% - 40px)); margin: 28px auto; display: grid; gap: 28px; }
+    .welcome { min-height: 42vh; display: grid; place-content: center; text-align: center; gap: 8px; }
+    .welcome h2 { margin: 0; font: 800 clamp(2.4rem, 7vw, 4.4rem)/.9 var(--display); letter-spacing: -.07em; }
+    .welcome p { margin: 0; color: var(--muted); font: 12px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+    .msg { display: grid; gap: 8px; }
+    .who { display: flex; align-items: baseline; gap: 8px; font: 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .who b { color: var(--fg); font-weight: 500; }
+    .mode-tag { border: 1px solid var(--line-2); padding: 1px 6px; }
+    .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .body a { text-decoration: underline; text-underline-offset: 3px; }
+    .body img { max-width: min(460px, 100%); display: block; margin-top: 10px; }
+    .file {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 10px; padding: 10px 12px;
+      border: 1px solid var(--line-2);
+      font-size: .82rem;
+    }
+    .file small { color: var(--muted); font: 11px var(--mono); }
+    .md-h { margin: .5em 0 .2em; font-size: 1.06em; }
+    .md-quote { display: block; border-left: 1px solid var(--fg); padding-left: 10px; color: var(--muted); }
+    .md-subtext { display: block; color: var(--muted); font-size: .8em; }
+    code { font-family: var(--mono); font-size: .86em; background: #121212; padding: .12em .35em; }
+    .code { margin: 10px 0; border: 1px solid var(--line-2); background: #080808; }
+    .code header { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; color: var(--muted); font: 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .code pre { margin: 0; padding: 12px; overflow: auto; font: 12.5px/1.5 var(--mono); }
+    .code button, .sources button, .file button { border: 0; background: transparent; color: var(--muted); padding: 0; font: 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .spoiler { background: var(--fg); color: transparent; cursor: pointer; }
+    .spoiler.on { background: transparent; color: inherit; }
+    .receipt, .sources {
+      border: 1px solid var(--line-2);
+      background: #080808;
+      font: 12px/1.45 var(--mono);
+    }
+    .receipt { display: grid; gap: 7px; padding: 10px 12px; }
+    .receipt .kicker { color: var(--muted); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+    .tool { display: grid; grid-template-columns: 8px 1fr auto; gap: 8px; align-items: center; }
+    .tool i {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--muted);
+    }
+    .tool.running i { background: var(--fg); animation: pulse 1s steps(1) infinite; }
+    .tool.done i { background: var(--fg); }
+    .tool em { font-style: normal; color: var(--muted); }
+    @keyframes pulse { 50% { opacity: .2; } }
+    .live {
+      display: grid; gap: 12px;
+      padding-top: 4px;
+    }
+    .think {
+      display: flex; align-items: center; gap: 12px;
+      font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+    }
+    .scan {
+      width: 64px; height: 1px; background: #222; position: relative; overflow: hidden;
+    }
+    .scan b {
+      position: absolute; top: 0; left: 0; width: 22px; height: 1px; background: #fff;
+      animation: sweep 1.2s ease-in-out infinite;
+    }
+    @keyframes sweep {
+      0% { transform: translateX(-22px); opacity: .15; }
+      45% { opacity: 1; }
+      100% { transform: translateX(64px); opacity: .15; }
+    }
+    .sources details { padding: 0; }
+    .sources summary {
+      list-style: none; cursor: pointer;
+      padding: 8px 12px; color: var(--muted);
+      letter-spacing: .14em; text-transform: uppercase; font-size: 10px;
+    }
+    .sources summary::-webkit-details-marker { display: none; }
+    .sources pre { margin: 0; padding: 0 12px 12px; overflow: auto; color: #cfcfcf; white-space: pre; }
+    .dock { padding: 0 20px 18px; }
+    .composer { width: min(780px, 100%); margin: 0 auto; display: grid; gap: 8px; }
+    .box {
+      border: 1px solid var(--line-2);
+      background: #090909;
+      padding: 10px;
+    }
+    .box:focus-within { border-color: #fff; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 4px 8px; }
+    .chip {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--line-2);
+      padding: 5px 8px;
+      font-size: .75rem;
+    }
+    .chip img { width: 22px; height: 22px; object-fit: cover; }
+    .chip button { border: 0; background: transparent; color: var(--muted); padding: 0; }
+    #input {
+      border: 0; background: transparent; resize: none; max-height: 180px;
+      padding: 8px 8px 4px; min-height: 44px;
+    }
+    .bar { display: flex; align-items: center; gap: 8px; padding: 4px 4px 2px; }
+    .modes { display: flex; border: 1px solid var(--line-2); }
+    .modes button {
+      border: 0; background: transparent; color: var(--muted);
+      padding: 6px 10px; font: 11px var(--mono); letter-spacing: .08em; text-transform: uppercase;
+    }
+    .modes button.on { background: #fff; color: #000; }
+    .grow { flex: 1; }
+    .send {
+      width: 36px; height: 36px; border: 0; border-radius: 50%;
+      background: #fff; color: #000; display: grid; place-items: center; padding: 0;
+    }
+    .send svg { width: 15px; height: 15px; }
+    .send:disabled { opacity: .35; }
+    .status { min-height: 1.1em; color: var(--muted); font: 11px var(--mono); }
     .status.bad { color: var(--danger); }
-    @media (max-width: 720px) {
+    @media (max-width: 760px) {
       .app { grid-template-columns: 1fr; }
-      .rail { position: fixed; inset: 0 auto 0 0; width: min(280px, 86vw); z-index: 2; transform: translateX(-100%); }
+      .rail { position: fixed; inset: 0 auto 0 0; width: min(280px, 88vw); z-index: 2; transform: translateX(-100%); }
       .rail.open { transform: none; }
-      .scrim { position: fixed; inset: 0; background: #0008; z-index: 1; }
+      .scrim { position: fixed; inset: 0; background: #000a; z-index: 1; }
+      .thread-inner, .dock { width: auto; }
     }
   </style>
 </head>
 <body>
-  <div class="screen" id="boot">Starting Luna…</div>
+  <div class="screen" id="boot">Luna</div>
 
   <div class="screen" id="auth" hidden>
     <form class="card" id="login">
-      <h1>Luna</h1>
-      <p>Sign in with your Liminal account.</p>
+      <h1 class="mark">Luna</h1>
+      <p>Standalone AI. Same account, different machine.</p>
       <label>Username <input id="user" autocomplete="username" maxlength="20" required></label>
       <label>Password <input id="pass" type="password" autocomplete="current-password" required></label>
       <div class="err" id="login-err"></div>
-      <button class="primary" type="submit">Sign in</button>
-      <p class="hint">No account yet? Create one in <a href="chat.html">Liminal Chat</a>.</p>
+      <button class="go" type="submit">Enter</button>
     </form>
   </div>
 
@@ -187,30 +259,53 @@
     <aside class="rail" id="rail">
       <div class="rail-head">
         <strong>Luna</strong>
-        <button class="ghost" id="new" type="button">New</button>
+        <button class="quiet" id="new" type="button">New</button>
       </div>
       <nav class="chats" id="chats"></nav>
       <div class="rail-foot">
         <span id="who"></span>
-        <span><a href="chat.html">Chat</a> · <button class="ghost" id="out" type="button" style="padding:4px 8px;font-size:.72rem">Sign out</button></span>
+        <button class="quiet" id="out" type="button">Sign out</button>
       </div>
     </aside>
     <main class="main">
       <header class="top">
         <button class="icon" id="menu" type="button" aria-label="Conversations" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 8h14M5 12h14M5 16h10"></path></svg>
         </button>
         <h1 id="title">New conversation</h1>
       </header>
       <section class="thread" id="thread">
         <div class="thread-inner" id="list"></div>
       </section>
-      <div class="composer">
-        <form id="form">
-          <textarea id="input" rows="1" maxlength="2000" placeholder="Message Luna" aria-label="Message Luna"></textarea>
-          <button class="primary" type="submit">Send</button>
-        </form>
-        <div class="status" id="status"></div>
+      <div class="dock">
+        <div class="composer">
+          <form id="form">
+            <div class="box">
+              <div class="chips" id="chips" hidden></div>
+              <textarea id="input" rows="1" maxlength="4000" placeholder="Ask Luna" aria-label="Message Luna"></textarea>
+              <div class="bar">
+                <div class="modes" role="radiogroup" aria-label="Mode">
+                  <button type="button" data-mode="chat" class="on">Chat</button>
+                  <button type="button" data-mode="thinking">Thinking</button>
+                  <button type="button" data-mode="code">Code</button>
+                </div>
+                <span class="grow"></span>
+                <input id="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+                <input id="file" type="file" accept=".html,.htm,.js,.mjs,.cjs,.jsx,.ts,.tsx,.css,.md,.txt,.json,.xml,.svg,.yml,.yaml,.toml,.ini,.csv,.sql,.py,.rb,.go,.rs,.java,.c,.h,.cpp,.cs,.php,.sh,.bash" hidden>
+                <button class="icon" id="photo-btn" type="button" aria-label="Attach photo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1"></rect><circle cx="8.5" cy="10" r="1.4"></circle><path d="m21 16-5.2-5.2-8.8 8.2"></path></svg>
+                </button>
+                <button class="icon" id="file-btn" type="button" aria-label="Attach file">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"></path><path d="M14 3v5h5"></path></svg>
+                </button>
+                <button class="send" id="send" type="submit" aria-label="Send">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="status" id="status"></div>
+        </div>
       </div>
     </main>
   </div>
@@ -219,9 +314,16 @@
     const SUPABASE_URL = 'https://ucgjwrjqmexenmrpbdkh.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_BODuji68eJDK34su6xVuwg_B_tXwFaL';
     const AI_USERNAME = 'Luna';
-    const AI_FUNCTION = 'chatgpt-luna';
+    const AI_FUNCTION = 'luna-direct';
     const COLS = 'id,dm_id,sender,content,type,media_url,reply_to,deleted,edited,created_at';
     const LAST_KEY = 'luna_dm';
+    const MODE_KEY = 'luna_mode';
+    const TEXT_EXTS = new Set(['html','htm','js','mjs','cjs','jsx','ts','tsx','css','md','txt','json','xml','svg','yml','yaml','toml','ini','csv','sql','py','rb','go','rs','java','c','h','cpp','cs','php','sh','bash']);
+    const MODE_META = {
+      chat: { label: 'chat', effort: 'low' },
+      thinking: { label: 'thinking', effort: 'high' },
+      code: { label: 'code', effort: 'xhigh' },
+    };
 
     const $ = (id) => document.getElementById(id);
     const esc = (t) => String(t ?? '')
@@ -229,6 +331,7 @@
       .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
     const emailOf = (name) => `${String(name || '').trim().toLowerCase()}@accounts.liminal.invalid`;
     const timeFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
+    const humanSize = (n) => n < 1024 ? `${n} B` : n < 1048576 ? `${Math.round(n / 1024)} KB` : `${(n / 1048576).toFixed(1)} MB`;
 
     let sb, me;
     let chats = [];
@@ -237,24 +340,26 @@
     let seen = new Set();
     let pending = false;
     let sending = false;
+    let mode = 'chat';
+    let attachments = [];
+    let live = { label: 'thinking', tools: [] };
 
     function untitled(dm) {
       const raw = String(dm?.title || '').trim();
       return !raw || /^(new( luna)? chat|luna chat|new conversation)$/i.test(raw);
     }
-    function titleOf(dm) {
-      return untitled(dm) ? 'New conversation' : dm.title;
-    }
-    function isEmpty(dm) {
-      return dm && !dm.lastMsg && untitled(dm);
-    }
-    function current() {
-      return chats.find((d) => d.id === currentId) || null;
-    }
-
+    function titleOf(dm) { return untitled(dm) ? 'New conversation' : dm.title; }
+    function isEmpty(dm) { return dm && !dm.lastMsg && untitled(dm); }
+    function current() { return chats.find((d) => d.id === currentId) || null; }
     function setStatus(text, bad) {
       $('status').textContent = text || '';
       $('status').classList.toggle('bad', !!bad);
+    }
+    function setMode(next) {
+      mode = MODE_META[next] ? next : 'chat';
+      try { localStorage.setItem(MODE_KEY, mode); } catch {}
+      document.querySelectorAll('[data-mode]').forEach((btn) => btn.classList.toggle('on', btn.dataset.mode === mode));
+      $('input').placeholder = mode === 'code' ? 'Describe the program' : mode === 'thinking' ? 'Give Luna something to work through' : 'Ask Luna';
     }
 
     function renderChats() {
@@ -265,44 +370,92 @@
             const meta = when ? new Date(when).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
             return `<button class="chat ${d.id === currentId ? 'on' : ''}" type="button" data-id="${esc(d.id)}"><b>${esc(titleOf(d))}</b><span>${esc(meta)}</span></button>`;
           }).join('')
-        : '<div class="empty">No conversations yet.</div>';
-      $('chats').querySelectorAll('[data-id]').forEach((btn) => {
-        btn.addEventListener('click', () => openChat(btn.dataset.id));
-      });
+        : '<div class="empty">No threads yet.</div>';
+      $('chats').querySelectorAll('[data-id]').forEach((btn) => btn.addEventListener('click', () => openChat(btn.dataset.id)));
+    }
+
+    function toolReceipt(tools) {
+      if (!tools?.length) return '';
+      return `<div class="receipt"><div class="kicker">Tools</div>${tools.map((t) => {
+        const state = t.status === 'running' ? 'running' : 'done';
+        return `<div class="tool ${state}"><i></i><span>${esc(t.label || t.name)}</span><em>${esc(t.detail || state)}</em></div>`;
+      }).join('')}</div>`;
+    }
+
+    function sourcesBlock(meta) {
+      if (!meta?.sources?.length && !meta?.files?.length && !meta?.tools?.length) return '';
+      const json = {
+        mode: meta.mode || null,
+        reasoning_effort: meta.reasoning_effort || null,
+        tools: (meta.tools || []).map((t) => ({ name: t.name, detail: t.detail || null })),
+        sources: meta.sources || [],
+        files: (meta.files || []).map((f) => ({ path: f.path, bytes: f.bytes })),
+      };
+      return `<div class="sources"><details><summary>Sources.json</summary><pre>${esc(JSON.stringify(json, null, 2))}</pre></details></div>`;
+    }
+
+    function artifactCards(files) {
+      if (!files?.length) return '';
+      return files.map((f, i) => `
+        <div class="file">
+          <span>${esc(f.path || 'file')}</span>
+          <small>${esc(humanSize(f.bytes || (f.content || '').length))}</small>
+          <span class="grow"></span>
+          <button type="button" data-dl="${i}">Download</button>
+        </div>`).join('');
     }
 
     function renderList() {
       const visible = msgs.filter((m) => !m.deleted);
       $('title').textContent = titleOf(current());
-      if (!visible.length) {
-        $('list').innerHTML = '';
+      if (!visible.length && !pending) {
+        $('list').innerHTML = `<div class="welcome"><h2>Luna</h2><p>${MODE_META[mode].label} · ${MODE_META[mode].effort} effort</p></div>`;
         return;
       }
       $('list').innerHTML = visible.map((m) => {
         const mine = m.sender === me.username;
-        const effort = !mine && m.reply_to?.reasoning_effort === 'high';
-        const who = mine ? 'You' : AI_USERNAME;
-        const media = (m.type === 'image' || m.type === 'gif') && m.media_url
-          ? `<img src="${esc(m.media_url)}" alt="">`
-          : '';
+        const meta = m.reply_to || {};
+        const media = (m.type === 'image' || m.type === 'gif') && m.media_url ? `<img src="${esc(m.media_url)}" alt="">` : '';
+        const file = m.type === 'file' && m.media_url ? `<div class="file"><span>${esc(fileName(m.media_url))}</span><a href="${esc(m.media_url)}" target="_blank" rel="noopener">open</a></div>` : '';
+        const files = !mine ? artifactCards(meta.files) : '';
         return `<article class="msg ${mine ? 'me' : ''}">
-          <div class="who">${esc(who)}${effort ? '<span class="effort">high effort</span>' : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
-          <div class="body">${renderBody(m.content)}${media}</div>
+          <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && meta.mode ? `<span class="mode-tag">${esc(meta.mode)} · ${esc(meta.reasoning_effort || '')}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
+          ${!mine ? toolReceipt(meta.tools) : ''}
+          <div class="body">${renderBody(m.content)}${media}${file}${files}</div>
+          ${!mine ? sourcesBlock(meta) : ''}
         </article>`;
-      }).join('');
-      $('list').querySelectorAll('.spoiler').forEach((el) => {
-        el.addEventListener('click', () => el.classList.add('on'));
-      });
-      $('list').querySelectorAll('.code button').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          const code = btn.closest('.code')?.querySelector('code');
-          if (!code) return;
-          try { await navigator.clipboard.writeText(code.textContent || ''); btn.textContent = 'Copied'; }
-          catch { btn.textContent = 'Copy failed'; }
-          setTimeout(() => { btn.textContent = 'Copy'; }, 1200);
-        });
-      });
+      }).join('') + (pending ? liveHtml() : '');
+      wireRendered($('list'));
       $('thread').scrollTop = $('thread').scrollHeight;
+    }
+
+    function liveHtml() {
+      return `<div class="live">
+        <div class="think"><span class="scan"><b></b></span>${esc(live.label || 'thinking')}</div>
+        ${toolReceipt(live.tools)}
+      </div>`;
+    }
+
+    function wireRendered(root) {
+      root.querySelectorAll('.spoiler').forEach((el) => el.addEventListener('click', () => el.classList.add('on')));
+      root.querySelectorAll('.code button').forEach((btn) => btn.addEventListener('click', async () => {
+        const code = btn.closest('.code')?.querySelector('code');
+        if (!code) return;
+        try { await navigator.clipboard.writeText(code.textContent || ''); btn.textContent = 'Copied'; }
+        catch { btn.textContent = 'Failed'; }
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1100);
+      }));
+      root.querySelectorAll('[data-dl]').forEach((btn) => btn.addEventListener('click', () => {
+        const node = btn.closest('.msg');
+        const idx = [...$('list').querySelectorAll('.msg')].indexOf(node);
+        const file = msgs.filter((m) => !m.deleted)[idx]?.reply_to?.files?.[Number(btn.dataset.dl)];
+        if (!file?.path) return;
+        const blob = new Blob([file.content || ''], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = file.path; a.click();
+        URL.revokeObjectURL(url);
+      }));
     }
 
     const URL_RE = /https?:\/\/[^\s<>"'`]+/g;
@@ -311,17 +464,15 @@
       const tokens = [];
       const hold = (html) => { tokens.push(html); return PL + (tokens.length - 1) + PL; };
       let text = String(raw || '');
-      text = text.replace(/```([A-Za-z0-9+#._-]*)[ \t]*\r?\n([\s\S]*?)```/g, (_, lang, code) => {
-        return hold(`<section class="code"><header><span>${esc(lang || 'code')}</span><button type="button">Copy</button></header><pre><code>${highlight(code.replace(/\n$/, ''), lang)}</code></pre></section>`);
-      });
+      text = text.replace(/```([A-Za-z0-9+#._-]*)[ \t]*\r?\n([\s\S]*?)```/g, (_, lang, code) =>
+        hold(`<section class="code"><header><span>${esc(lang || 'code')}</span><button type="button">Copy</button></header><pre><code>${highlight(code.replace(/\n$/, ''))}</code></pre></section>`));
       text = text.replace(/`([^`\n]+)`/g, (_, code) => hold(`<code>${esc(code)}</code>`));
       text = text.replace(URL_RE, (m) => {
         const trail = m.match(/[.,;:!?]+$/)?.[0] || '';
         if (trail) m = m.slice(0, -trail.length);
-        const label = m.length > 64 ? m.slice(0, 61) + '…' : m;
-        return hold(`<a href="${esc(m)}" target="_blank" rel="noopener noreferrer nofollow">${esc(label)}</a>`) + trail;
+        return hold(`<a href="${esc(m)}" target="_blank" rel="noopener noreferrer nofollow">${esc(m.length > 64 ? m.slice(0, 61) + '…' : m)}</a>`) + trail;
       });
-      const lines = esc(text).split('\n').map((line) => {
+      const html = esc(text).split('\n').map((line) => {
         const q = /^&gt;\s(.*)$/.exec(line);
         if (q) return `<span class="md-quote">${inline(q[1])}</span>`;
         const h = /^(#{1,3})\s+(.+)$/.exec(line);
@@ -329,8 +480,8 @@
         const sub = /^-#\s+(.+)$/.exec(line);
         if (sub) return `<span class="md-subtext">${inline(sub[1])}</span>`;
         return inline(line);
-      });
-      return lines.join('\n').replace(new RegExp(PL + '(\\d+)' + PL, 'g'), (_, i) => tokens[Number(i)] || _);
+      }).join('\n');
+      return html.replace(new RegExp(PL + '(\\d+)' + PL, 'g'), (_, i) => tokens[Number(i)] || _);
     }
     function inline(s) {
       return s
@@ -341,17 +492,23 @@
         .replace(/~~([\s\S]+?)~~/g, '<s>$1</s>')
         .replace(/__([^_\n]+?)__/g, '<u>$1</u>');
     }
-    function highlight(code, language) {
+    function highlight(code) {
       const held = [];
       const hold = (html) => String.fromCharCode(0xE000 + held.push(html) - 1);
       let text = String(code || '');
-      text = text.replace(/(["'`])(?:\\.|(?!\1)[^\\\r\n])*\1/g, (m) => hold(`<span style="color:#f0c27a">${esc(m)}</span>`));
-      text = text.replace(/\/\*[\s\S]*?\*\/|\/\/[^\r\n]*/g, (m) => hold(`<span style="color:#8b83a9">${esc(m)}</span>`));
+      text = text.replace(/(["'`])(?:\\.|(?!\1)[^\\\r\n])*\1/g, (m) => hold(`<span style="color:#d0d0d0">${esc(m)}</span>`));
+      text = text.replace(/\/\*[\s\S]*?\*\/|\/\/[^\r\n]*/g, (m) => hold(`<span style="color:#666">${esc(m)}</span>`));
       text = esc(text)
-        .replace(/\b(const|let|var|function|return|if|else|for|while|async|await|class|new|import|from|export|default|try|catch|throw|def|SELECT|FROM|WHERE)\b/g, '<span style="color:#c4b5fd">$1</span>')
-        .replace(/\b(true|false|null|undefined)\b/g, '<span style="color:#86efac">$1</span>')
-        .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span style="color:#fda4af">$1</span>');
+        .replace(/\b(const|let|var|function|return|if|else|for|while|async|await|class|new|import|from|export|default|try|catch|throw|def)\b/g, '<span style="color:#fff">$1</span>')
+        .replace(/\b(true|false|null|undefined)\b/g, '<span style="color:#bbb">$1</span>');
       return text.replace(/[\uE000-\uF8FF]/g, (t) => held[t.charCodeAt(0) - 0xE000] || t);
+    }
+    function fileName(url) {
+      try {
+        const segment = decodeURIComponent(new URL(url, location.href).pathname.split('/').pop() || '');
+        const marked = segment.split('__');
+        return (marked.length > 1 ? marked.slice(1).join('__') : segment) || 'file';
+      } catch { return 'file'; }
     }
 
     async function loadChats() {
@@ -361,10 +518,9 @@
         .map((d) => ({ ...d, other: (d.participants || []).find((u) => u !== me.username), lastMsg: null }))
         .filter((d) => d.other === AI_USERNAME);
       if (chats.length) {
-        const ids = chats.map((d) => d.id);
         const { data: lasts } = await sb.from('dm_messages')
           .select('dm_id,sender,content,type,created_at,deleted')
-          .in('dm_id', ids).order('created_at', { ascending: false }).limit(400);
+          .in('dm_id', chats.map((d) => d.id)).order('created_at', { ascending: false }).limit(400);
         const seenLast = new Set();
         (lasts || []).forEach((m) => {
           if (seenLast.has(m.dm_id)) return;
@@ -373,34 +529,25 @@
           if (dm) dm.lastMsg = m;
         });
       }
-      chats.sort((a, b) => {
-        const ta = a.lastMsg?.created_at || a.created_at;
-        const tb = b.lastMsg?.created_at || b.created_at;
-        return new Date(tb) - new Date(ta);
-      });
+      chats.sort((a, b) => new Date(b.lastMsg?.created_at || b.created_at) - new Date(a.lastMsg?.created_at || a.created_at));
     }
 
     async function loadMessages(id) {
-      const { data, error } = await sb.from('dm_messages')
-        .select(COLS).eq('dm_id', id).order('created_at', { ascending: true }).limit(200);
+      const { data, error } = await sb.from('dm_messages').select(COLS).eq('dm_id', id).order('created_at', { ascending: true }).limit(200);
       if (error) throw error;
       msgs = data || [];
       seen = new Set(msgs.map((m) => m.id));
     }
 
     function ingest(m) {
-      if (!m?.id || seen.has(m.id)) return;
-      if (!chats.some((d) => d.id === m.dm_id)) return;
+      if (!m?.id || seen.has(m.id) || !chats.some((d) => d.id === m.dm_id)) return;
       seen.add(m.id);
       const dm = chats.find((d) => d.id === m.dm_id);
       if (dm) dm.lastMsg = m;
       chats.sort((a, b) => new Date(b.lastMsg?.created_at || b.created_at) - new Date(a.lastMsg?.created_at || a.created_at));
       if (m.dm_id === currentId) {
         msgs.push(m);
-        if (m.sender === AI_USERNAME) {
-          pending = false;
-          setStatus('');
-        }
+        if (m.sender === AI_USERNAME) pending = false;
         renderList();
       }
       renderChats();
@@ -408,36 +555,28 @@
 
     async function openChat(id) {
       currentId = id;
+      pending = false;
+      live = { label: 'thinking', tools: [] };
       try { sessionStorage.setItem(LAST_KEY, id || ''); } catch {}
       closeRail();
       if (!id) {
-        msgs = [];
-        seen = new Set();
-        renderChats();
-        renderList();
-        setStatus('');
-        $('input').focus();
+        msgs = []; seen = new Set();
+        renderChats(); renderList(); setStatus(''); $('input').focus();
         return;
       }
       await loadMessages(id);
-      renderChats();
-      renderList();
-      $('input').focus();
+      renderChats(); renderList(); $('input').focus();
     }
 
     async function ensureChat() {
       if (currentId) return currentId;
       const reusable = chats.find(isEmpty);
-      if (reusable) {
-        currentId = reusable.id;
-        return currentId;
-      }
+      if (reusable) { currentId = reusable.id; return currentId; }
       const parts = [me.username, AI_USERNAME].sort();
       const { data, error } = await sb.from('dms').insert({ participants: parts, title: 'New conversation' }).select().single();
       if (error || !data) throw new Error(error?.message || 'Could not start a conversation.');
-      const dm = { ...data, other: AI_USERNAME, lastMsg: null };
-      chats.unshift(dm);
-      currentId = dm.id;
+      chats.unshift({ ...data, other: AI_USERNAME, lastMsg: null });
+      currentId = data.id;
       try { sessionStorage.setItem(LAST_KEY, currentId); } catch {}
       return currentId;
     }
@@ -447,48 +586,131 @@
       if (!dm || !untitled(dm)) return;
       const candidate = String(content || '').replace(/\s+/g, ' ').trim().slice(0, 64);
       if (!candidate) return;
-      const { data, error } = await sb.rpc('chat_update_luna_conversation_title', {
-        p_dm_id: dm.id,
-        p_title: candidate,
-      });
+      const { data, error } = await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: candidate });
       if (error || !data) return;
       dm.title = String(data);
-      renderChats();
-      renderList();
+      renderChats(); renderList();
     }
 
-    async function functionError(error, data) {
-      if (data?.error) return String(data.error);
-      const response = error?.context;
-      if (response && typeof response.json === 'function') {
-        try {
-          const payload = await response.json();
-          if (payload?.error) return String(payload.error);
-        } catch {}
+    async function compressImage(file) {
+      const url = URL.createObjectURL(file);
+      const img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error('Could not read image'));
+        el.src = url;
+      });
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.86));
+      return { blob, preview: canvas.toDataURL('image/jpeg', 0.7), name: file.name || 'image.jpg' };
+    }
+
+    async function upload(att) {
+      if (!me.user_id) throw new Error('Signed-in upload identity is missing.');
+      if (att.kind === 'image') {
+        const path = `${me.user_id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+        const { error } = await sb.storage.from('liminal-media').upload(path, att.blob, { upsert: true, contentType: 'image/jpeg' });
+        if (error) throw error;
+        return sb.storage.from('liminal-media').getPublicUrl(path).data.publicUrl;
       }
-      if (response?.status === 401) return 'Your session expired. Sign in again.';
-      if (response?.status === 429) return 'Luna is busy. Retry shortly.';
-      if (response?.status >= 500) return 'Luna hit a provider problem. Retry in a moment.';
-      const message = String(error?.message || '');
-      return message && !/non-2xx status code/i.test(message) ? message : 'Luna could not complete that request.';
+      const safeName = String(att.name || 'file.txt').replace(/[^\w.\-]+/g, '_').slice(-80) || 'file.txt';
+      const path = `${me.user_id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}__${encodeURIComponent(safeName)}`;
+      const blob = new Blob([await att.file.text()], { type: 'text/plain' });
+      const { error } = await sb.storage.from('liminal-media').upload(path, blob, { upsert: true, contentType: 'text/plain' });
+      if (error) throw error;
+      return sb.storage.from('liminal-media').getPublicUrl(path).data.publicUrl;
+    }
+
+    function renderChips() {
+      $('chips').hidden = !attachments.length;
+      $('chips').innerHTML = attachments.map((att, i) => `
+        <span class="chip">${att.preview ? `<img src="${esc(att.preview)}" alt="">` : ''}<span>${esc(att.name)}</span><button type="button" data-x="${i}" aria-label="Remove">×</button></span>
+      `).join('');
+      $('chips').querySelectorAll('[data-x]').forEach((btn) => btn.addEventListener('click', () => {
+        attachments.splice(Number(btn.dataset.x), 1);
+        renderChips();
+      }));
+    }
+
+    async function addPhoto(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      if (attachments.length >= 4) { setStatus('Four attachments max.', true); return; }
+      const packed = await compressImage(file);
+      attachments.push({ kind: 'image', ...packed });
+      renderChips();
+    }
+    async function addFile(file) {
+      if (!file) return;
+      if (file.type.startsWith('image/')) return addPhoto(file);
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (!TEXT_EXTS.has(ext) && !(file.type || '').startsWith('text/')) { setStatus('Text files only.', true); return; }
+      if (file.size > 2 * 1024 * 1024) { setStatus('Files are limited to 2 MB.', true); return; }
+      if (attachments.length >= 4) { setStatus('Four attachments max.', true); return; }
+      attachments.push({ kind: 'file', file, name: file.name });
+      renderChips();
     }
 
     async function askLuna(message) {
       pending = true;
-      setStatus('Luna is answering…');
+      live = { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [] };
+      renderList();
+      $('send').disabled = true;
       try {
-        const { data, error } = await sb.functions.invoke(AI_FUNCTION, {
-          body: { action: 'reply', source_message_id: message.id },
+        const { data: sessionData } = await sb.auth.getSession();
+        const token = sessionData.session?.access_token;
+        if (!token) throw new Error('Your session expired. Sign in again.');
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
+          method: 'POST',
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'reply', source_message_id: message.id, mode }),
         });
-        if (error || data?.error) throw new Error(await functionError(error, data));
-        if (data?.response_message_id) {
-          const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', data.response_message_id).maybeSingle();
+        const ctype = res.headers.get('content-type') || '';
+        if (!ctype.includes('text/event-stream')) {
+          const payload = await res.json().catch(() => ({}));
+          throw new Error(payload.error || 'Luna could not answer.');
+        }
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let doneId = null;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop() || '';
+          for (const part of parts) {
+            const line = part.split('\n').find((l) => l.startsWith('data:'));
+            if (!line) continue;
+            let ev;
+            try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
+            if (ev.type === 'thinking') live.label = ev.label || live.label;
+            if (ev.type === 'tool') {
+              const i = live.tools.findIndex((t) => t.id === ev.id);
+              const row = { id: ev.id, name: ev.name, label: ev.label, status: ev.status, detail: ev.detail };
+              if (i >= 0) live.tools[i] = { ...live.tools[i], ...row };
+              else live.tools.push(row);
+            }
+            if (ev.type === 'error') throw new Error(ev.error || 'Luna could not answer.');
+            if (ev.type === 'done') doneId = ev.response_message_id;
+            renderList();
+          }
+        }
+        if (doneId) {
+          const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', doneId).maybeSingle();
           if (row) ingest(row);
         }
-        if (pending) setStatus('Luna is answering…');
       } catch (err) {
-        pending = false;
         setStatus(err?.message || 'Luna could not answer.', true);
+      } finally {
+        pending = false;
+        $('send').disabled = false;
+        renderList();
       }
     }
 
@@ -497,20 +719,42 @@
       if (sending || pending) return;
       const input = $('input');
       const content = input.value.trim();
-      if (!content) return;
+      const queued = attachments.slice();
+      if (!content && !queued.length) return;
       sending = true;
       input.value = '';
       input.style.height = 'auto';
+      attachments = [];
+      renderChips();
+      setStatus('');
       try {
         const dmId = await ensureChat();
-        const row = { sender: me.username, content, type: 'text', dm_id: dmId, read_by: [me.username] };
-        const { data, error } = await sb.from('dm_messages').insert(row).select(COLS).single();
-        if (error || !data) throw new Error(error?.message || 'Message failed to send.');
-        ingest(data);
-        void maybeTitle(content);
-        void askLuna(data);
+        let last = null;
+        for (let i = 0; i < queued.length; i++) {
+          const att = queued[i];
+          const url = await upload(att);
+          const caption = i === queued.length - 1 ? content : '';
+          const { data, error } = await sb.from('dm_messages').insert({
+            sender: me.username, content: caption, type: att.kind, media_url: url, dm_id: dmId, read_by: [me.username],
+          }).select(COLS).single();
+          if (error || !data) throw new Error(error?.message || 'Upload failed.');
+          ingest(data);
+          last = data;
+        }
+        if (!queued.length) {
+          const { data, error } = await sb.from('dm_messages').insert({
+            sender: me.username, content, type: 'text', dm_id: dmId, read_by: [me.username],
+          }).select(COLS).single();
+          if (error || !data) throw new Error(error?.message || 'Message failed to send.');
+          ingest(data);
+          last = data;
+        }
+        void maybeTitle(content || queued[0]?.name || '');
+        void askLuna(last);
       } catch (err) {
         input.value = content;
+        attachments = queued;
+        renderChips();
         setStatus(err?.message || 'Message failed to send.', true);
       } finally {
         sending = false;
@@ -518,44 +762,34 @@
       }
     }
 
+    function closeRail() { $('rail').classList.remove('open'); $('scrim').hidden = true; }
+
     function setupRealtime() {
       sb.channel('luna-dms')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dm_messages' }, ({ new: row }) => {
-          if (row) ingest(row);
-        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dm_messages' }, ({ new: row }) => { if (row) ingest(row); })
         .subscribe();
-    }
-
-    function closeRail() {
-      $('rail').classList.remove('open');
-      $('scrim').hidden = true;
     }
 
     async function boot(profile) {
       me = profile;
-      $('boot').hidden = true;
-      $('auth').hidden = true;
-      $('app').hidden = false;
+      if (!me.user_id) {
+        const { data } = await sb.from('profiles').select('user_id').eq('username', me.username).maybeSingle();
+        if (data?.user_id) me.user_id = data.user_id;
+      }
+      $('boot').hidden = true; $('auth').hidden = true; $('app').hidden = false;
       $('who').textContent = `@${me.username}`;
       await loadChats();
       setupRealtime();
       const saved = (() => { try { return sessionStorage.getItem(LAST_KEY); } catch { return ''; } })();
-      const start = chats.find((d) => d.id === saved)?.id || chats[0]?.id || null;
-      await openChat(start);
+      await openChat(chats.find((d) => d.id === saved)?.id || chats[0]?.id || null);
     }
 
     async function restore() {
       const { data: sessionData } = await sb.auth.getSession();
       if (!sessionData.session) return false;
       const { data: profile, error } = await sb.rpc('chat_get_my_profile');
-      if (error || !profile) {
-        await sb.auth.signOut({ scope: 'local' });
-        return false;
-      }
-      if (profile.is_banned) {
-        $('boot').textContent = 'This account is banned.';
-        return true;
-      }
+      if (error || !profile) { await sb.auth.signOut({ scope: 'local' }); return false; }
+      if (profile.is_banned) { $('boot').textContent = 'This account is banned.'; return true; }
       await boot(profile);
       return true;
     }
@@ -564,53 +798,51 @@
       event.preventDefault();
       const err = $('login-err');
       err.textContent = '';
-      const username = $('user').value.trim();
-      const password = $('pass').value;
       const btn = event.submitter;
       btn.disabled = true;
       try {
-        const { error } = await sb.auth.signInWithPassword({ email: emailOf(username), password });
+        const { error } = await sb.auth.signInWithPassword({ email: emailOf($('user').value.trim()), password: $('pass').value });
         if (error) { err.textContent = 'Wrong username or password.'; return; }
         const { data: profile, error: profileError } = await sb.rpc('chat_get_my_profile');
-        if (profileError || !profile) {
-          await sb.auth.signOut({ scope: 'local' });
-          err.textContent = `No Liminal profile exists for "${username}".`;
-          return;
-        }
+        if (profileError || !profile) { await sb.auth.signOut({ scope: 'local' }); err.textContent = 'No profile for that username.'; return; }
         if (profile.is_banned) { err.textContent = 'This account is banned.'; return; }
         await boot(profile);
-      } catch {
-        err.textContent = 'Could not reach the server.';
-      } finally {
-        btn.disabled = false;
-      }
+      } catch { err.textContent = 'Could not reach the server.'; }
+      finally { btn.disabled = false; }
     }
 
     function wire() {
       $('login').addEventListener('submit', login);
       $('form').addEventListener('submit', send);
       $('new').addEventListener('click', () => openChat(isEmpty(current()) ? currentId : null));
-      $('out').addEventListener('click', async () => {
-        try { await sb.auth.signOut({ scope: 'local' }); } catch {}
-        location.reload();
-      });
-      $('menu').addEventListener('click', () => {
-        $('rail').classList.add('open');
-        $('scrim').hidden = false;
-      });
+      $('out').addEventListener('click', async () => { try { await sb.auth.signOut({ scope: 'local' }); } catch {} location.reload(); });
+      $('menu').addEventListener('click', () => { $('rail').classList.add('open'); $('scrim').hidden = false; });
       $('scrim').addEventListener('click', closeRail);
+      document.querySelectorAll('[data-mode]').forEach((btn) => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
+      $('photo-btn').addEventListener('click', () => $('photo').click());
+      $('file-btn').addEventListener('click', () => $('file').click());
+      $('photo').addEventListener('change', () => { addPhoto($('photo').files[0]); $('photo').value = ''; });
+      $('file').addEventListener('change', () => { addFile($('file').files[0]); $('file').value = ''; });
       const input = $('input');
-      input.addEventListener('input', () => {
-        input.style.height = 'auto';
-        input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+      input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 180) + 'px'; });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('form').requestSubmit(); } });
+      input.addEventListener('paste', (e) => {
+        const item = [...(e.clipboardData?.items || [])].find((i) => i.type.startsWith('image/'));
+        if (!item) return;
+        e.preventDefault();
+        addPhoto(item.getAsFile());
       });
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('form').requestSubmit(); }
+      const box = document.querySelector('.box');
+      box.addEventListener('dragover', (e) => { e.preventDefault(); });
+      box.addEventListener('drop', (e) => {
+        e.preventDefault();
+        [...e.dataTransfer.files].forEach((f) => { if (f.type.startsWith('image/')) addPhoto(f); else addFile(f); });
       });
-      const mq = matchMedia('(max-width: 720px)');
+      const mq = matchMedia('(max-width: 760px)');
       const syncMenu = () => { $('menu').hidden = !mq.matches; if (!mq.matches) closeRail(); };
       mq.addEventListener?.('change', syncMenu);
       syncMenu();
+      setMode((() => { try { return localStorage.getItem(MODE_KEY) || 'chat'; } catch { return 'chat'; } })());
     }
 
     function waitForSupabase() {
@@ -628,16 +860,12 @@
     }
 
     waitForSupabase().then(async (ready) => {
-      if (!ready) { $('boot').textContent = 'Could not load supabase-js. Allow cdn.jsdelivr.net and reload.'; return; }
+      if (!ready) { $('boot').textContent = 'Could not load supabase-js.'; return; }
       sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: localStorage },
       });
       wire();
-      if (!await restore()) {
-        $('boot').hidden = true;
-        $('auth').hidden = false;
-        $('user').focus();
-      }
+      if (!await restore()) { $('boot').hidden = true; $('auth').hidden = false; $('user').focus(); }
     });
   </script>
 </body>
