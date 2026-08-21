@@ -9,12 +9,12 @@
     http-equiv="Content-Security-Policy"
     content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'none'"
   >
-  <title>Luna</title>
+  <title>Liminal AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://ucgjwrjqmexenmrpbdkh.supabase.co" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Pacifico&family=Rock+Salt&display=swap" rel="stylesheet">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2/dist/umd/supabase.min.js" integrity="sha384-JWEyvHh+lRf0sN/WWY+QTQwX+CyWqmNg4tkc8GQzAMEtR2wGNrCJlvnu1lHD1kDm" crossorigin="anonymous"></script>
   <style>
     :root {
@@ -44,37 +44,9 @@
     [hidden] { display: none !important; }
     a { color: inherit; }
     .screen { min-height: 100%; display: grid; place-items: center; padding: 28px; }
-    #boot { font: 700 2.4rem/1 var(--display); }
-    .card {
-      width: min(360px, 100%);
-      display: grid;
-      gap: 14px;
-      padding: 28px 26px;
-      border-radius: 32px;
-      background: var(--soft);
-      box-shadow: 0 18px 50px #0008;
-    }
-    .mark { margin: 0; font: 700 2.3rem/.95 var(--display); letter-spacing: -.03em; }
-    .card p { margin: 0; color: var(--muted); font-size: .92rem; }
-    label { display: grid; gap: 6px; color: var(--muted); font-size: .78rem; font-weight: 700; }
-    input, textarea {
-      width: 100%;
-      border: 0;
-      border-radius: 16px;
-      background: #0b0b10;
-      padding: 12px 14px;
-      outline: none;
-    }
-    input:focus, textarea:focus { box-shadow: 0 0 0 2px #fff; }
-    .go {
-      border: 0;
-      border-radius: 999px;
-      background: var(--fg);
-      color: #111;
-      font-weight: 800;
-      padding: 12px;
-    }
-    .err { color: var(--danger); font-size: .82rem; min-height: 1.1em; }
+    #boot .wordmark { flex-direction: column; align-items: center; gap: 4px; }
+    #boot .brand-title { font-size: 2.6rem; }
+    #boot .brand-subtitle { font-size: 1.05rem; }
     .app { height: 100%; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
     .rail {
       display: grid;
@@ -91,6 +63,24 @@
       padding: 16px;
     }
     .rail-head strong { font: 700 1.15rem/1 var(--display); }
+    .wordmark { display: flex; align-items: baseline; gap: 10px; min-width: 0; white-space: nowrap; }
+    .wordmark .brand-title {
+      font-family: Pacifico, cursive;
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .wordmark .brand-subtitle {
+      color: #bda6fb;
+      font-family: "Rock Salt", cursive;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.15;
+      transform: rotate(-2deg);
+    }
+    .rail-head .wordmark { flex-direction: column; align-items: flex-start; gap: 2px; }
+    .rail-head .brand-title { font-size: 1.5rem; }
+    .rail-head .brand-subtitle { font-size: .78rem; }
     .quiet {
       border: 0;
       border-radius: 999px;
@@ -134,14 +124,10 @@
     .icon svg { width: 16px; height: 16px; }
     .thread { overflow: auto; }
     .thread-inner { width: min(760px, calc(100% - 36px)); margin: 12px auto 24px; display: grid; gap: 18px; }
-    .welcome { min-height: 42vh; display: grid; place-content: center; justify-items: center; text-align: center; gap: 10px; }
-    .orb {
-      display: block;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: radial-gradient(circle at 32% 32%, #fff, #cfcfd8 70%);
-      box-shadow: 0 0 28px #ffffff66;
-    }
-    .welcome h2 { margin: 0; font: 700 clamp(2.6rem, 8vw, 4.8rem)/.9 var(--display); letter-spacing: -.04em; }
+    .welcome { min-height: 42vh; display: grid; place-content: center; justify-items: center; text-align: center; gap: 14px; }
+    .welcome .wordmark { flex-direction: column; align-items: center; gap: 6px; }
+    .welcome .brand-title { font-size: clamp(3rem, 10vw, 5.6rem); }
+    .welcome .brand-subtitle { font-size: clamp(1.35rem, 4.2vw, 2.15rem); }
     .welcome p {
       margin: 4px 0 0;
       color: var(--muted);
@@ -199,9 +185,9 @@
       display: grid;
       gap: 7px;
       width: 100%;
-      padding: 10px 12px;
-      border-radius: 18px;
-      background: #121218;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
       font-size: .8rem;
     }
     .receipt summary {
@@ -315,33 +301,184 @@
       .scrim { position: fixed; inset: 0; background: #000a; z-index: 1; }
       .thread-inner, .dock { width: auto; }
     }
+
+    .auth-screen {
+      --bg: #09003d;
+      --accent: #a78bfa;
+      --text: #f4f2ff;
+      --on-accent: #120a2e;
+      --muted: rgba(244, 242, 255, 0.5);
+      --text-soft: rgba(244, 242, 255, 0.76);
+      --line: rgba(244, 242, 255, 0.11);
+      --line-strong: rgba(244, 242, 255, 0.2);
+      --surface: rgba(244, 242, 255, 0.045);
+      --surface-2: rgba(244, 242, 255, 0.08);
+      --panel-strong: #20194e;
+      --bg-deep: #070031;
+      --accent-soft: rgba(167, 139, 250, 0.15);
+      --accent-line: rgba(167, 139, 250, 0.32);
+      --accent-strong: #bda6fb;
+      --accent-glow: rgba(167, 139, 250, 0.22);
+      --danger: #ff7d91;
+      --font-ui: "Montserrat", system-ui, sans-serif;
+      --radius-lg: 20px;
+      --shadow: 0 20px 56px rgba(0, 0, 0, 0.34);
+      --focus: 0 0 0 3px rgba(167, 139, 250, 0.38);
+      --ease-slide: cubic-bezier(0.32, 0.72, 0, 1);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      position: fixed; inset: 0; z-index: 30;
+      display: grid; place-items: center; overflow: auto;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      animation: fade-in 250ms ease;
+    }
+    .auth-card {
+      width: min(420px, 100%);
+      padding: 34px 30px 26px;
+      border: 1px solid var(--line); border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      animation: pop-in 300ms ease;
+      overflow: hidden;
+    }
+    .auth-brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; text-align: center; }
+    .auth-brand p { margin: 0; color: var(--muted); font-size: 0.78rem; }
+    .auth-brand .wordmark { flex-direction: column; align-items: center; gap: 5px; overflow: visible; }
+    .auth-brand .brand-title { font-size: 2.25rem; color: var(--text); }
+    .auth-brand .brand-subtitle { font-size: 1rem; color: var(--accent-strong); }
+    .auth-tabs {
+      position: relative;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+      padding: 4px; margin-bottom: 22px;
+      border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+    }
+    .auth-tabs::before {
+      content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px;
+      width: calc(50% - 6px); border-radius: 9px;
+      background: var(--accent-strong);
+      transition: transform 340ms var(--ease-slide);
+    }
+    .auth-tabs.signup-active::before { transform: translateX(calc(100% + 4px)); }
+    .auth-tabs button {
+      position: relative; z-index: 1;
+      min-height: 36px; border: none; border-radius: 9px;
+      background: transparent; color: var(--muted);
+      font-family: var(--font-ui); font-weight: 750; font-size: 0.8rem;
+      transition: color 200ms ease;
+    }
+    .auth-tabs button[aria-selected="true"] { color: var(--on-accent); }
+    .auth-footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 0.7rem; }
+    .auth-footer button { border: none; background: none; color: var(--muted); font-size: 0.7rem; text-decoration: underline; }
+    .auth-footer button:hover { color: var(--text-soft); }
+    .auth-screen .primary-button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 40px; padding: 9px 18px; width: 100%;
+      border-radius: 11px; border: 1px solid transparent;
+      font-family: var(--font-ui); font-weight: 700; font-size: 0.82rem;
+      color: var(--on-accent); background: linear-gradient(140deg, var(--accent-strong), var(--accent));
+      transition: filter 130ms ease, transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+    }
+    .auth-screen .primary-button:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-glow); }
+    .auth-screen .primary-button:active { transform: translateY(1px); box-shadow: none; }
+    .auth-screen .field { display: grid; gap: 7px; margin-bottom: 14px; }
+    .auth-screen .field label { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-soft); }
+    .auth-screen .field input {
+      width: 100%; padding: 11px 13px;
+      border: 1px solid var(--line-strong); border-radius: 11px;
+      color: var(--text); background: color-mix(in srgb, var(--bg-deep) 55%, transparent);
+      transition: border-color 130ms ease;
+    }
+    .auth-screen .field input:focus { border-color: var(--accent); outline: none; box-shadow: var(--focus); }
+    .auth-screen .field-help { color: var(--muted); font-size: 0.72rem; line-height: 1.5; }
+    .auth-screen .pw-wrap { position: relative; }
+    .auth-screen .pw-wrap input { width: 100%; padding-right: 56px; }
+    .auth-screen .pw-toggle { position: absolute; top: 50%; right: 7px; padding: 4px 7px; border: none; background: none; color: var(--muted); font-family: var(--font-ui); font-size: 0.68rem; font-weight: 750; cursor: pointer; transform: translateY(-50%); }
+    .auth-screen .pw-toggle:hover { color: var(--text); }
+    .auth-screen .field-error { color: var(--danger); font-size: 0.76rem; font-weight: 600; min-height: 1.1em; }
+    @keyframes pop-in { from { opacity: 0; transform: translateY(6px) scale(0.985); } to { opacity: 1; transform: none; } }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
 <body>
-  <div class="screen" id="boot">Luna</div>
+  <div class="screen" id="boot">
+    <div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div>
+  </div>
 
-  <div class="screen" id="auth" hidden>
-    <form class="card" id="login">
-      <h1 class="mark">Luna</h1>
-      <p>Standalone AI. Same account, different machine.</p>
-      <label>Username <input id="user" autocomplete="username" maxlength="20" required></label>
-      <label>Password <input id="pass" type="password" autocomplete="current-password" required></label>
-      <div class="err" id="login-err"></div>
-      <button class="go" type="submit">Enter</button>
-    </form>
+  <div class="auth-screen" id="auth-screen" hidden>
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="wordmark">
+          <div class="brand-title">Liminal</div>
+          <div class="brand-subtitle">AI</div>
+        </div>
+        <p>Same account as Liminal Chat.</p>
+      </div>
+      <div class="auth-tabs" role="tablist" aria-label="Sign in or create account">
+        <button type="button" id="auth-tab-login" role="tab" aria-selected="true">Log in</button>
+        <button type="button" id="auth-tab-signup" role="tab" aria-selected="false">Sign up</button>
+      </div>
+      <form id="login-form">
+        <div class="field">
+          <label for="login-username">Username</label>
+          <input id="login-username" type="text" autocomplete="username" maxlength="20" required>
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <div class="pw-wrap">
+            <input id="login-password" type="password" autocomplete="current-password" required>
+            <button class="pw-toggle" type="button" data-pw-toggle="login-password" aria-label="Show password">Show</button>
+          </div>
+          <div class="field-help" id="login-forgot" hidden>Forgot your password? Any admin can reset it for you from the staff dashboard. Ask in the community or contact the owner.</div>
+        </div>
+        <div class="field-error" id="login-error" role="alert"></div>
+        <button class="primary-button" type="submit" id="login-submit">Log in</button>
+      </form>
+      <form id="signup-form" hidden>
+        <div class="field">
+          <label for="signup-display-name">Display name</label>
+          <input id="signup-display-name" type="text" autocomplete="name" maxlength="40" required>
+          <div class="field-help">Shown in chat. Spaces, emoji, and punctuation are welcome.</div>
+        </div>
+        <div class="field">
+          <label for="signup-username">Username</label>
+          <input id="signup-username" type="text" autocomplete="username" maxlength="20" required>
+          <div class="field-help">3–20 characters. Letters, numbers, and underscores only.</div>
+        </div>
+        <div class="field">
+          <label for="signup-password">Password</label>
+          <div class="pw-wrap">
+            <input id="signup-password" type="password" autocomplete="new-password" required>
+            <button class="pw-toggle" type="button" data-pw-toggle="signup-password" aria-label="Show password">Show</button>
+          </div>
+          <div class="field-help">At least 6 characters. Write it down: there is no email recovery, only admin resets.</div>
+        </div>
+        <div class="field">
+          <label for="signup-confirm">Confirm password</label>
+          <input id="signup-confirm" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="field-error" id="signup-error" role="alert"></div>
+        <button class="primary-button" type="submit" id="signup-submit">Create account</button>
+      </form>
+      <div class="auth-footer">
+        Liminal AI · <button type="button" id="auth-dismiss">Continue as guest</button>
+      </div>
+    </div>
   </div>
 
   <div class="app" id="app" hidden>
     <div class="scrim" id="scrim" hidden></div>
     <aside class="rail" id="rail">
       <div class="rail-head">
-        <strong>Luna</strong>
+        <div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div>
         <button class="quiet" id="new" type="button">New</button>
       </div>
       <nav class="chats" id="chats"></nav>
       <div class="rail-foot">
         <span id="who"></span>
-        <button class="quiet" id="out" type="button">Sign out</button>
+        <button class="quiet" id="out" type="button">Save progress</button>
       </div>
     </aside>
     <main class="main">
@@ -359,7 +496,7 @@
           <form id="form">
             <div class="box">
               <div class="chips" id="chips" hidden></div>
-              <textarea id="input" rows="1" maxlength="4000" placeholder="Ask Luna" aria-label="Message Luna"></textarea>
+              <textarea id="input" rows="1" maxlength="4000" placeholder="Ask Liminal" aria-label="Message Liminal"></textarea>
               <div class="bar">
                 <div class="modes" role="radiogroup" aria-label="Mode">
                   <button type="button" data-mode="chat" class="on">Chat</button>
@@ -395,6 +532,9 @@
     const COLS = 'id,dm_id,sender,content,type,media_url,reply_to,deleted,edited,created_at';
     const LAST_KEY = 'luna_dm';
     const MODE_KEY = 'luna_mode';
+    const GUEST_KEY = 'liminal_ai_guest_v1';
+    const DEVICE_ID_KEY = 'lc_device_id';
+    const RESERVED_NAMES = ['claude', 'system', 'liminal', 'admin', 'luna'];
     const TEXT_EXTS = new Set(['html','htm','js','mjs','cjs','jsx','ts','tsx','css','md','txt','json','xml','svg','yml','yaml','toml','ini','csv','sql','py','rb','go','rs','java','c','h','cpp','cs','php','sh','bash']);
     const MODE_META = {
       chat: { label: 'Chat', effort: 'low' },
@@ -421,6 +561,40 @@
     let attachments = [];
     let live = { label: 'thinking', tools: [], sources: [] };
 
+    function isGuest() { return !me || me.guest; }
+    function uid() {
+      try { return crypto.randomUUID(); } catch { return `g-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`; }
+    }
+    function persistGuest() {
+      if (!isGuest()) return;
+      const current = chats.find((d) => d.id === currentId);
+      if (current) current.messages = msgs.slice();
+      try { localStorage.setItem(GUEST_KEY, JSON.stringify({ chats, currentId })); } catch {}
+    }
+    function readGuest() {
+      try { return JSON.parse(localStorage.getItem(GUEST_KEY) || 'null'); } catch { return null; }
+    }
+    function clearGuest() {
+      try { localStorage.removeItem(GUEST_KEY); } catch {}
+    }
+    function showAuth() {
+      $('login-error').textContent = '';
+      $('signup-error').textContent = '';
+      $('login-forgot').hidden = true;
+      $('auth-screen').hidden = false;
+      $('login-username').focus();
+    }
+    function hideAuth() { $('auth-screen').hidden = true; }
+    function syncAccountChrome() {
+      if (isGuest()) {
+        $('who').textContent = 'Guest';
+        $('out').textContent = 'Save progress';
+      } else {
+        $('who').textContent = `@${me.username}`;
+        $('out').textContent = 'Sign out';
+      }
+    }
+
     function untitled(dm) {
       const raw = String(dm?.title || '').trim();
       return !raw || /^(new( luna)? chat|luna chat|new conversation)$/i.test(raw);
@@ -439,7 +613,7 @@
       mode = MODE_META[next] ? next : 'chat';
       try { localStorage.setItem(MODE_KEY, mode); } catch {}
       document.querySelectorAll('[data-mode]').forEach((btn) => btn.classList.toggle('on', btn.dataset.mode === mode));
-      $('input').placeholder = mode === 'code' ? 'Describe the program' : mode === 'thinking' ? 'Give Luna something to work through' : 'Ask Luna';
+      $('input').placeholder = mode === 'code' ? 'Describe the program' : mode === 'thinking' ? 'Give Liminal something to work through' : 'Ask Liminal';
       const welcome = document.querySelector('#list .welcome p');
       if (welcome) welcome.textContent = modeLine();
     }
@@ -536,7 +710,7 @@
       const visible = msgs.filter((m) => !m.deleted);
       $('title').textContent = titleOf(current());
       if (!visible.length && !pending) {
-        $('list').innerHTML = `<div class="welcome"><span class="orb"></span><h2>Luna</h2><p>${esc(modeLine())}</p></div>`;
+        $('list').innerHTML = `<div class="welcome"><div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div><p>${esc(modeLine())}</p></div>`;
         return;
       }
       $('list').innerHTML = visible.map((m) => {
@@ -671,7 +845,13 @@
       if (!m?.id || seen.has(m.id) || !chats.some((d) => d.id === m.dm_id)) return;
       seen.add(m.id);
       const dm = chats.find((d) => d.id === m.dm_id);
-      if (dm) dm.lastMsg = m;
+      if (dm) {
+        dm.lastMsg = m;
+        if (isGuest()) {
+          dm.messages = dm.messages || [];
+          if (!dm.messages.some((row) => row.id === m.id)) dm.messages.push(m);
+        }
+      }
       chats.sort((a, b) => new Date(b.lastMsg?.created_at || b.created_at) - new Date(a.lastMsg?.created_at || a.created_at));
       if (m.dm_id === currentId) {
         msgs.push(m);
@@ -679,17 +859,31 @@
         renderList();
       }
       renderChats();
+      persistGuest();
     }
 
     async function openChat(id) {
+      if (isGuest()) {
+        const prev = chats.find((d) => d.id === currentId);
+        if (prev) prev.messages = msgs.slice();
+      }
       currentId = id;
       pending = false;
-      live = { label: 'thinking', tools: [] };
+      live = { label: 'thinking', tools: [], sources: [] };
       try { sessionStorage.setItem(LAST_KEY, id || ''); } catch {}
       closeRail();
       if (!id) {
         msgs = []; seen = new Set();
         renderChats(); renderList(); setStatus(''); $('input').focus();
+        persistGuest();
+        return;
+      }
+      if (isGuest()) {
+        const chat = chats.find((d) => d.id === id);
+        msgs = (chat?.messages || []).slice();
+        seen = new Set(msgs.map((m) => m.id));
+        renderChats(); renderList(); $('input').focus();
+        persistGuest();
         return;
       }
       await loadMessages(id);
@@ -700,6 +894,14 @@
       if (currentId) return currentId;
       const reusable = chats.find(isEmpty);
       if (reusable) { currentId = reusable.id; return currentId; }
+      if (isGuest()) {
+        const now = new Date().toISOString();
+        const data = { id: uid(), title: 'New conversation', created_at: now, other: AI_USERNAME, lastMsg: null, messages: [] };
+        chats.unshift(data);
+        currentId = data.id;
+        persistGuest();
+        return currentId;
+      }
       const parts = [me.username, AI_USERNAME].sort();
       const { data, error } = await sb.from('dms').insert({ participants: parts, title: 'New conversation' }).select().single();
       if (error || !data) throw new Error(error?.message || 'Could not start a conversation.');
@@ -714,6 +916,11 @@
       if (!dm || !untitled(dm)) return;
       const candidate = String(content || '').replace(/\s+/g, ' ').trim().slice(0, 64);
       if (!candidate) return;
+      if (isGuest()) {
+        dm.title = candidate;
+        renderChats(); renderList(); persistGuest();
+        return;
+      }
       const { data, error } = await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: candidate });
       if (error || !data) return;
       dm.title = String(data);
@@ -783,12 +990,83 @@
       renderChips();
     }
 
+    async function consumeStream(res, onDone) {
+      const ctype = res.headers.get('content-type') || '';
+      if (!ctype.includes('text/event-stream')) {
+        const payload = await res.json().catch(() => ({}));
+        throw new Error(payload.error || 'Liminal could not answer.');
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let last = null;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
+        for (const part of parts) {
+          const line = part.split('\n').find((l) => l.startsWith('data:'));
+          if (!line) continue;
+          let ev;
+          try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
+          if (ev.type === 'thinking') live.label = ev.label || live.label;
+          if (ev.type === 'tool') {
+            const i = live.tools.findIndex((t) => t.id === ev.id);
+            const row = { id: ev.id, name: ev.name, label: ev.label, status: ev.status, detail: ev.detail };
+            if (i >= 0) live.tools[i] = { ...live.tools[i], ...row };
+            else live.tools.push(row);
+          }
+          if (ev.type === 'sources') live.sources = Array.isArray(ev.sources) ? ev.sources : [];
+          if (ev.type === 'error') throw new Error(ev.error || 'Liminal could not answer.');
+          if (ev.type === 'done') last = ev;
+          renderList();
+        }
+      }
+      if (onDone) await onDone(last);
+    }
+
     async function askLuna(message) {
       pending = true;
       live = { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [], sources: [] };
       renderList();
       $('send').disabled = true;
       try {
+        if (isGuest()) {
+          const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
+            method: 'POST',
+            headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'guest_reply',
+              mode,
+              messages: msgs.filter((m) => !m.deleted).map((m) => ({
+                id: m.id, sender: m.sender, content: m.content, type: m.type, media_url: m.media_url,
+              })),
+            }),
+          });
+          await consumeStream(res, async (ev) => {
+            if (!ev?.reply) throw new Error('Liminal could not answer.');
+            ingest({
+              id: ev.response_message_id || uid(),
+              dm_id: currentId,
+              sender: AI_USERNAME,
+              content: ev.reply || '',
+              type: 'text',
+              media_url: null,
+              reply_to: {
+                mode: ev.mode || mode,
+                reasoning_effort: ev.reasoning_effort || MODE_META[mode].effort,
+                sources: ev.sources || live.sources || [],
+                tools: ev.tools || live.tools || [],
+                files: (ev.files || []).map((f) => ({ ...f, content: f.content || '' })),
+              },
+              deleted: false,
+              created_at: new Date().toISOString(),
+            });
+          });
+          return;
+        }
         const { data: sessionData } = await sb.auth.getSession();
         const token = sessionData.session?.access_token;
         if (!token) throw new Error('Your session expired. Sign in again.');
@@ -797,45 +1075,14 @@
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'reply', source_message_id: message.id, mode }),
         });
-        const ctype = res.headers.get('content-type') || '';
-        if (!ctype.includes('text/event-stream')) {
-          const payload = await res.json().catch(() => ({}));
-          throw new Error(payload.error || 'Luna could not answer.');
-        }
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let doneId = null;
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const parts = buffer.split('\n\n');
-          buffer = parts.pop() || '';
-          for (const part of parts) {
-            const line = part.split('\n').find((l) => l.startsWith('data:'));
-            if (!line) continue;
-            let ev;
-            try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
-            if (ev.type === 'thinking') live.label = ev.label || live.label;
-            if (ev.type === 'tool') {
-              const i = live.tools.findIndex((t) => t.id === ev.id);
-              const row = { id: ev.id, name: ev.name, label: ev.label, status: ev.status, detail: ev.detail };
-              if (i >= 0) live.tools[i] = { ...live.tools[i], ...row };
-              else live.tools.push(row);
-            }
-            if (ev.type === 'sources') live.sources = Array.isArray(ev.sources) ? ev.sources : [];
-            if (ev.type === 'error') throw new Error(ev.error || 'Luna could not answer.');
-            if (ev.type === 'done') doneId = ev.response_message_id;
-            renderList();
-          }
-        }
-        if (doneId) {
+        await consumeStream(res, async (ev) => {
+          const doneId = ev?.response_message_id;
+          if (!doneId) return;
           const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', doneId).maybeSingle();
           if (row) ingest(row);
-        }
+        });
       } catch (err) {
-        setStatus(err?.message || 'Luna could not answer.', true);
+        setStatus(err?.message || 'Liminal could not answer.', true);
       } finally {
         pending = false;
         $('send').disabled = false;
@@ -861,8 +1108,24 @@
         let last = null;
         for (let i = 0; i < queued.length; i++) {
           const att = queued[i];
-          const url = await upload(att);
           const caption = i === queued.length - 1 ? content : '';
+          if (isGuest()) {
+            let media = null;
+            let body = caption;
+            if (att.kind === 'image') media = att.preview || null;
+            if (att.kind === 'file') {
+              const text = await att.file.text();
+              body = [caption, `Attached file ${att.name}:\n${text}`].filter(Boolean).join('\n\n');
+            }
+            const row = {
+              id: uid(), dm_id: dmId, sender: me.username, content: body, type: att.kind,
+              media_url: media, reply_to: null, deleted: false, created_at: new Date().toISOString(),
+            };
+            ingest(row);
+            last = row;
+            continue;
+          }
+          const url = await upload(att);
           const { data, error } = await sb.from('dm_messages').insert({
             sender: me.username, content: caption, type: att.kind, media_url: url, dm_id: dmId, read_by: [me.username],
           }).select(COLS).single();
@@ -871,12 +1134,21 @@
           last = data;
         }
         if (!queued.length) {
-          const { data, error } = await sb.from('dm_messages').insert({
-            sender: me.username, content, type: 'text', dm_id: dmId, read_by: [me.username],
-          }).select(COLS).single();
-          if (error || !data) throw new Error(error?.message || 'Message failed to send.');
-          ingest(data);
-          last = data;
+          if (isGuest()) {
+            const row = {
+              id: uid(), dm_id: dmId, sender: me.username, content, type: 'text',
+              media_url: null, reply_to: null, deleted: false, created_at: new Date().toISOString(),
+            };
+            ingest(row);
+            last = row;
+          } else {
+            const { data, error } = await sb.from('dm_messages').insert({
+              sender: me.username, content, type: 'text', dm_id: dmId, read_by: [me.username],
+            }).select(COLS).single();
+            if (error || !data) throw new Error(error?.message || 'Message failed to send.');
+            ingest(data);
+            last = data;
+          }
         }
         void maybeTitle(content || queued[0]?.name || '');
         void askLuna(last);
@@ -894,9 +1166,43 @@
     function closeRail() { $('rail').classList.remove('open'); $('scrim').hidden = true; }
 
     function setupRealtime() {
+      if (isGuest()) return;
       sb.channel('luna-dms')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dm_messages' }, ({ new: row }) => { if (row) ingest(row); })
         .subscribe();
+    }
+
+    function guestThreadsPayload() {
+      const current = chats.find((d) => d.id === currentId);
+      if (current) current.messages = msgs.slice();
+      return chats
+        .filter((d) => (d.messages || []).some((m) => !m.deleted))
+        .map((d) => ({
+          title: titleOf(d),
+          messages: (d.messages || []).filter((m) => !m.deleted).map((m) => ({
+            sender: m.sender === AI_USERNAME ? AI_USERNAME : 'user',
+            content: m.content || '',
+            type: m.type || 'text',
+            media_url: m.media_url || null,
+            reply_to: m.reply_to || null,
+          })),
+        }));
+    }
+
+    async function importGuestHistory() {
+      const threads = guestThreadsPayload();
+      if (!threads.length) { clearGuest(); return; }
+      const { data: sessionData } = await sb.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) return;
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'import_guest', threads }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.error || 'Could not save guest conversations.');
+      clearGuest();
     }
 
     async function boot(profile) {
@@ -905,12 +1211,26 @@
         const { data } = await sb.from('profiles').select('user_id').eq('username', me.username).maybeSingle();
         if (data?.user_id) me.user_id = data.user_id;
       }
-      $('boot').hidden = true; $('auth').hidden = true; $('app').hidden = false;
-      $('who').textContent = `@${me.username}`;
+      $('boot').hidden = true;
+      hideAuth();
+      $('app').hidden = false;
+      syncAccountChrome();
       await loadChats();
       setupRealtime();
       const saved = (() => { try { return sessionStorage.getItem(LAST_KEY); } catch { return ''; } })();
       await openChat(chats.find((d) => d.id === saved)?.id || chats[0]?.id || null);
+    }
+
+    function bootGuest() {
+      me = { username: 'You', guest: true };
+      const saved = readGuest();
+      chats = Array.isArray(saved?.chats) ? saved.chats : [];
+      $('boot').hidden = true;
+      hideAuth();
+      $('app').hidden = false;
+      syncAccountChrome();
+      const start = chats.find((d) => d.id === saved?.currentId)?.id || chats[0]?.id || null;
+      openChat(start);
     }
 
     async function restore() {
@@ -923,28 +1243,157 @@
       return true;
     }
 
-    async function login(event) {
+    function validUsername(name) {
+      if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) return 'Usernames are 3–20 characters: letters, numbers, underscores.';
+      if (RESERVED_NAMES.includes(name.toLowerCase())) return 'That name is reserved.';
+      return null;
+    }
+    function getDeviceId() {
+      try {
+        const existing = localStorage.getItem(DEVICE_ID_KEY);
+        if (existing && existing.length >= 16) return existing;
+      } catch {}
+      const id = `${uid()}-${uid()}`;
+      try { localStorage.setItem(DEVICE_ID_KEY, id); } catch {}
+      return id;
+    }
+    async function callChatAuth(payload) {
+      const { data: sessionData } = await sb.auth.getSession();
+      const token = sessionData.session?.access_token;
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/chat-auth`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || `Account request failed (${response.status})`);
+      return result;
+    }
+
+    async function afterAuth(profile) {
+      hideAuth();
+      try { await importGuestHistory(); } catch (err) { setStatus(err?.message || 'Signed in, but guest chats could not be saved.', true); }
+      await boot(profile);
+    }
+
+    async function handleLogin(event) {
       event.preventDefault();
-      const err = $('login-err');
-      err.textContent = '';
-      const btn = event.submitter;
+      const errEl = $('login-error');
+      errEl.textContent = '';
+      const username = $('login-username').value.trim();
+      const pass = $('login-password').value;
+      if (!username || !pass) { errEl.textContent = 'Enter your username and password.'; return; }
+      const btn = $('login-submit');
       btn.disabled = true;
       try {
-        const { error } = await sb.auth.signInWithPassword({ email: emailOf($('user').value.trim()), password: $('pass').value });
-        if (error) { err.textContent = 'Wrong username or password.'; return; }
-        const { data: profile, error: profileError } = await sb.rpc('chat_get_my_profile');
-        if (profileError || !profile) { await sb.auth.signOut({ scope: 'local' }); err.textContent = 'No profile for that username.'; return; }
-        if (profile.is_banned) { err.textContent = 'This account is banned.'; return; }
-        await boot(profile);
-      } catch { err.textContent = 'Could not reach the server.'; }
-      finally { btn.disabled = false; }
+        const { error: loginError } = await sb.auth.signInWithPassword({ email: emailOf(username), password: pass });
+        if (loginError) {
+          errEl.textContent = 'Wrong username or password.';
+          $('login-forgot').hidden = false;
+          return;
+        }
+        const { data, error } = await sb.rpc('chat_get_my_profile');
+        if (error || !data) {
+          await sb.auth.signOut({ scope: 'local' });
+          errEl.textContent = `No Liminal profile exists for "${username}".`;
+          return;
+        }
+        if (data.is_banned) { errEl.textContent = 'This account is banned.'; return; }
+        await afterAuth(data);
+      } catch (err) {
+        errEl.textContent = err?.message || 'Could not reach the server. Try again.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function handleSignup(event) {
+      event.preventDefault();
+      const errEl = $('signup-error');
+      errEl.textContent = '';
+      const username = $('signup-username').value.trim();
+      const displayName = $('signup-display-name').value.trim();
+      const pass = $('signup-password').value;
+      const confirm = $('signup-confirm').value;
+      const nameErr = validUsername(username);
+      if (nameErr) { errEl.textContent = nameErr; return; }
+      if (!displayName || displayName.length > 40) { errEl.textContent = 'Display names must be 1-40 characters.'; return; }
+      if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+      if (pass !== confirm) { errEl.textContent = 'Passwords do not match.'; return; }
+      const btn = $('signup-submit');
+      btn.disabled = true;
+      try {
+        await callChatAuth({
+          action: 'signup',
+          username,
+          display_name: displayName,
+          password: pass,
+          device_id: getDeviceId(),
+        });
+        const { error: loginError } = await sb.auth.signInWithPassword({ email: emailOf(username), password: pass });
+        if (loginError) throw loginError;
+        const { data, error } = await sb.rpc('chat_get_my_profile');
+        if (error || !data) {
+          errEl.textContent = error?.code === '23505' ? 'That username is already taken.' : 'Could not create the account. Try again.';
+          return;
+        }
+        await afterAuth(data);
+      } catch (err) {
+        errEl.textContent = err?.message || 'Something went wrong. Check your connection and try again.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function wireAuth() {
+      $('auth-tab-login').addEventListener('click', () => {
+        $('auth-tab-login').setAttribute('aria-selected', 'true');
+        $('auth-tab-signup').setAttribute('aria-selected', 'false');
+        document.querySelector('.auth-tabs').classList.remove('signup-active');
+        $('signup-form').hidden = true;
+        $('login-form').hidden = false;
+        $('login-username').focus();
+      });
+      $('auth-tab-signup').addEventListener('click', () => {
+        $('auth-tab-login').setAttribute('aria-selected', 'false');
+        $('auth-tab-signup').setAttribute('aria-selected', 'true');
+        document.querySelector('.auth-tabs').classList.add('signup-active');
+        $('login-form').hidden = true;
+        $('signup-form').hidden = false;
+        $('signup-display-name').focus();
+      });
+      $('login-form').addEventListener('submit', handleLogin);
+      $('signup-form').addEventListener('submit', handleSignup);
+      $('auth-dismiss').addEventListener('click', hideAuth);
+      document.querySelectorAll('[data-pw-toggle]').forEach((btn) => btn.addEventListener('click', () => {
+        const input = $(btn.dataset.pwToggle);
+        const show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.textContent = show ? 'Hide' : 'Show';
+        btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        input.focus();
+      }));
+      let signupUsernameTouched = false;
+      $('signup-username').addEventListener('input', () => { signupUsernameTouched = $('signup-username').value !== ''; });
+      $('signup-display-name').addEventListener('input', () => {
+        if (signupUsernameTouched) return;
+        $('signup-username').value = $('signup-display-name').value.replace(/[^A-Za-z0-9_]/g, '').slice(0, 20);
+      });
     }
 
     function wire() {
-      $('login').addEventListener('submit', login);
+      wireAuth();
       $('form').addEventListener('submit', send);
       $('new').addEventListener('click', () => openChat(isEmpty(current()) ? currentId : null));
-      $('out').addEventListener('click', async () => { try { await sb.auth.signOut({ scope: 'local' }); } catch {} location.reload(); });
+      $('out').addEventListener('click', async () => {
+        if (isGuest()) { showAuth(); return; }
+        try { await sb.auth.signOut({ scope: 'local' }); } catch {}
+        location.reload();
+      });
       $('menu').addEventListener('click', () => { $('rail').classList.add('open'); $('scrim').hidden = false; });
       $('scrim').addEventListener('click', closeRail);
       document.querySelectorAll('[data-mode]').forEach((btn) => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
@@ -994,7 +1443,7 @@
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: localStorage },
       });
       wire();
-      if (!await restore()) { $('boot').hidden = true; $('auth').hidden = false; $('user').focus(); }
+      if (!await restore()) bootGuest();
     });
   </script>
 </body>
