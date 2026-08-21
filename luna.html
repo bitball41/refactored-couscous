@@ -464,11 +464,11 @@
         </div>
         <p>Same account as Liminal Chat.</p>
       </div>
-      <div class="auth-tabs signup-active" role="tablist" aria-label="Sign in or create account">
-        <button type="button" id="auth-tab-login" role="tab" aria-selected="false">Log in</button>
-        <button type="button" id="auth-tab-signup" role="tab" aria-selected="true">Sign up</button>
+      <div class="auth-tabs" role="tablist" aria-label="Sign in or create account">
+        <button type="button" id="auth-tab-login" role="tab" aria-selected="true">Log in</button>
+        <button type="button" id="auth-tab-signup" role="tab" aria-selected="false">Sign up</button>
       </div>
-      <form id="login-form" hidden>
+      <form id="login-form">
         <div class="field">
           <label for="login-username">Username</label>
           <input id="login-username" type="text" autocomplete="username" maxlength="20" required>
@@ -484,7 +484,7 @@
         <div class="field-error" id="login-error" role="alert"></div>
         <button class="primary-button" type="submit" id="login-submit">Log in</button>
       </form>
-      <form id="signup-form">
+      <form id="signup-form" hidden>
         <div class="field">
           <label for="signup-display-name">Display name</label>
           <input id="signup-display-name" type="text" autocomplete="name" maxlength="40" required>
@@ -629,9 +629,9 @@
       $('signup-error').textContent = '';
       $('login-forgot').hidden = true;
       $('boot').hidden = true;
-      setAuthTab('signup');
+      setAuthTab('login');
       $('auth-screen').hidden = false;
-      $('signup-display-name').focus();
+      $('login-username').focus();
     }
     function hideAuth() { $('auth-screen').hidden = true; }
     function setAuthTab(tab) {
