@@ -134,7 +134,7 @@
       gap: 12px;
       padding: 14px 22px;
     }
-    .top h1 { margin: 0; font-size: 1rem; font-weight: 800; }
+    .top h1 { margin: 0; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; font-weight: 800; }
     .icon {
       width: 38px; height: 38px; padding: 0;
       display: grid; place-items: center;
@@ -235,25 +235,94 @@
     .tool em { font-style: normal; color: var(--muted); }
     @keyframes pulse { 50% { opacity: .25; transform: scale(.7); } }
     .live { display: grid; gap: 10px; justify-items: start; max-width: min(640px, 100%); }
+    .live-extra { display: grid; gap: 10px; width: 100%; }
     .think {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: var(--bubble);
+      display: inline-flex; align-items: center; gap: 12px;
       color: var(--muted);
       font-size: .86rem;
       font-weight: 700;
     }
-    .dots { display: flex; gap: 5px; }
-    .dots i {
-      width: 7px; height: 7px; border-radius: 50%; background: #fff;
-      animation: bounce 1s ease-in-out infinite;
+    .ai-thinking {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .dots i:nth-child(2) { animation-delay: .12s; }
-    .dots i:nth-child(3) { animation-delay: .24s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: translateY(0); opacity: .35; }
-      40% { transform: translateY(-4px); opacity: 1; }
+    .thinking-grid {
+      width: 52px;
+      height: 52px;
+      display: block;
+      color: #fff;
+    }
+    .thinking-grid .dot {
+      fill: currentColor;
+      transform-box: fill-box;
+      transform-origin: center;
+      opacity: .20;
+    }
+    .thinking-grid .d0 { animation: think-d0 2.2s linear infinite; }
+    .thinking-grid .d1 { animation: think-d1 2.2s linear infinite; }
+    .thinking-grid .d2 { animation: think-d2 2.2s linear infinite; }
+    .thinking-grid .d3 { animation: think-d3 2.2s linear infinite; }
+    .thinking-grid .d4 { animation: think-d4 2.2s linear infinite; }
+    .thinking-grid .d5 { animation: think-d5 2.2s linear infinite; }
+    .thinking-grid .d6 { animation: think-d6 2.2s linear infinite; }
+    .thinking-grid .d7 { animation: think-d7 2.2s linear infinite; }
+    .thinking-grid .d8 { animation: think-d8 2.2s linear infinite; }
+    @keyframes think-d0 {
+      0%,100% { transform:scale(1.12); opacity:.82; }
+      6%,94% { transform:scale(1.05); opacity:.44; }
+      12%,88%,50% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d1 {
+      0%,100% { transform:scale(1.05); opacity:.44; }
+      6%,94% { transform:scale(1.12); opacity:.82; }
+      12%,88% { transform:scale(1.05); opacity:.44; }
+      18%,82%,50% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d2 {
+      6%,94% { transform:scale(1.05); opacity:.44; }
+      12%,88% { transform:scale(1.12); opacity:.82; }
+      18%,82% { transform:scale(1.05); opacity:.44; }
+      24%,76% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d3 {
+      12%,88% { transform:scale(1.05); opacity:.44; }
+      18%,82% { transform:scale(1.12); opacity:.82; }
+      24%,76% { transform:scale(1.05); opacity:.44; }
+      30%,70% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d4 {
+      18%,82% { transform:scale(1.05); opacity:.44; }
+      25%,75% { transform:scale(1.12); opacity:.82; }
+      32%,68% { transform:scale(1.05); opacity:.44; }
+      39%,61% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d5 {
+      25%,75% { transform:scale(1.05); opacity:.44; }
+      31%,69% { transform:scale(1.12); opacity:.82; }
+      37%,63% { transform:scale(1.05); opacity:.44; }
+      43%,57% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d6 {
+      31%,69% { transform:scale(1.05); opacity:.44; }
+      37%,63% { transform:scale(1.12); opacity:.82; }
+      43%,57% { transform:scale(1.05); opacity:.44; }
+      50% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d7 {
+      37%,63% { transform:scale(1.05); opacity:.44; }
+      43%,57% { transform:scale(1.12); opacity:.82; }
+      50% { transform:scale(1.05); opacity:.44; }
+    }
+    @keyframes think-d8 {
+      0%,37%,63%,100% { transform:scale(1); opacity:.20; }
+      43%,57% { transform:scale(1.05); opacity:.44; }
+      50% { transform:scale(1.12); opacity:.82; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .thinking-grid .dot { animation: none !important; opacity: .36; }
+      .thinking-grid .d4 { opacity: .82; }
     }
     .sources { display: grid; gap: 8px; width: 100%; }
     .src-list { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -318,12 +387,88 @@
       padding: 3px;
       border-radius: 999px;
       background: #0b0b10;
+      flex-shrink: 0;
     }
     .modes button {
       border: 0; background: transparent; color: var(--muted);
       padding: 6px 12px; border-radius: 999px; font-size: .78rem; font-weight: 800;
     }
     .modes button.on { background: #fff; color: #111; }
+    .picker { position: relative; flex-shrink: 0; }
+    .picker-btn {
+      display: flex; align-items: center; gap: 10px;
+      max-width: min(280px, 52vw);
+      border: 0;
+      border-radius: 999px;
+      background: #0b0b10;
+      padding: 6px 10px 6px 12px;
+      text-align: left;
+    }
+    .picker-btn .copy { display: grid; min-width: 0; }
+    .picker-btn b {
+      font-size: .82rem; font-weight: 800; line-height: 1.15;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .picker-btn small {
+      color: var(--muted); font-size: .68rem; font-weight: 700;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .picker-btn svg { width: 12px; height: 12px; color: var(--muted); flex-shrink: 0; }
+    .picker.open .picker-btn { box-shadow: 0 0 0 1px #ffffff22; }
+    .picker-menu {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      width: min(320px, calc(100vw - 28px));
+      display: grid; gap: 4px;
+      padding: 8px;
+      border-radius: 22px;
+      background: #101016;
+      box-shadow: 0 18px 50px #000a, 0 0 0 1px #ffffff12;
+      z-index: 5;
+    }
+    .pick {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1px 10px;
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      background: transparent;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .pick:hover { background: #1a1a22; }
+    .pick.on { background: #fff; color: #111; }
+    .pick b { font-size: .86rem; font-weight: 800; }
+    .pick span { grid-column: 1; color: var(--muted); font-size: .72rem; font-weight: 700; }
+    .pick.on span { color: #5c5c66; }
+    .pick em {
+      grid-column: 2; grid-row: 1 / span 2;
+      align-self: center;
+      font-style: normal; font-size: .68rem; font-weight: 800;
+      color: var(--muted);
+    }
+    .pick.on em { color: #111; }
+    .pick .scarce, .picker-btn .scarce { color: #d8c48a; }
+    .pick.on .scarce { color: #7a6430; }
+    .icon.off { opacity: .38; }
+    .limit-card {
+      min-height: 42vh;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      text-align: center;
+      gap: 12px;
+      padding: 56px 18px;
+    }
+    .limit-card h2 { margin: 0; font: 800 1.4rem/1.2 var(--display); }
+    .limit-card p { margin: 0; max-width: 38ch; color: var(--muted); font-size: .92rem; }
+    .limit-card button {
+      margin-top: 8px;
+      border: 0; border-radius: 999px;
+      background: #fff; color: #111;
+      padding: 8px 14px;
+      font-size: .8rem; font-weight: 800;
+    }
     .grow { flex: 1; }
     .send {
       width: 40px; height: 40px; border: 0; border-radius: 50%;
@@ -534,6 +679,13 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 8h14M5 12h14M5 16h10"></path></svg>
         </button>
         <h1 id="title">New conversation</h1>
+        <div class="picker" id="picker">
+          <button class="picker-btn" id="picker-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="picker-menu">
+            <span class="copy"><b id="picker-name">Luna</b><small id="picker-meta">OpenAI</small></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+          <div class="picker-menu" id="picker-menu" hidden role="listbox" aria-label="Model"></div>
+        </div>
       </header>
       <section class="thread" id="thread">
         <div class="thread-inner" id="list"></div>
@@ -579,6 +731,7 @@
     const COLS = 'id,dm_id,sender,content,type,media_url,reply_to,deleted,edited,created_at';
     const LAST_KEY = 'luna_dm';
     const MODE_KEY = 'luna_mode';
+    const PROVIDER_KEY = 'luna_provider';
     const GUEST_KEY = 'liminal_ai_guest_v1';
     const DEVICE_ID_KEY = 'lc_device_id';
     const RESERVED_NAMES = ['claude', 'system', 'liminal', 'admin', 'luna'];
@@ -587,6 +740,14 @@
       chat: { label: 'Chat', effort: 'low' },
       thinking: { label: 'Thinking', effort: 'high' },
       code: { label: 'Code', effort: 'xhigh' },
+    };
+    const PROVIDER_ORDER = ['openai', 'groq', 'workersai', 'glm', 'gemini'];
+    const PROVIDER_META = {
+      openai: { label: 'Luna', meta: 'OpenAI', vision: true },
+      groq: { label: 'GPT OSS 120B', meta: 'Groq · Text only', vision: false },
+      workersai: { label: 'Qwen 3.8 27B', meta: 'Cloudflare', vision: true },
+      glm: { label: 'GLM 5.2', meta: 'OpenRouter · Text only', vision: false },
+      gemini: { label: 'Gemini', meta: 'Scarce Model', vision: true, scarce: true },
     };
 
     const $ = (id) => document.getElementById(id);
@@ -605,8 +766,10 @@
     let pending = false;
     let sending = false;
     let mode = 'chat';
+    let provider = 'openai';
     let attachments = [];
     let live = { label: 'thinking', tools: [], sources: [] };
+    let notice = null;
 
     function isGuest() { return !me || me.guest; }
     function uid() {
@@ -663,16 +826,115 @@
       $('status').textContent = text || '';
       $('status').classList.toggle('bad', !!bad);
     }
+    function clearNotice() {
+      notice = null;
+    }
+    function showNotice(kind, title, body) {
+      notice = { kind, title, body };
+    }
+    function classifyNotice(message) {
+      const text = String(message || '').trim();
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      if (/text-only|photos or switch|cannot see photos/i.test(text)) {
+        return { kind: 'capability', title: `${meta.label} cannot see photos`, body: text };
+      }
+      if (/limit|capacity|too quickly|quota|unavailable|scarce model/i.test(text)) {
+        return {
+          kind: 'limit',
+          title: meta.scarce ? 'This scarce model is at capacity' : 'This model is at capacity',
+          body: text,
+        };
+      }
+      return { kind: 'error', title: 'Liminal could not answer', body: text };
+    }
+    function noticeHtml() {
+      if (!notice) return '';
+      return `<div class="limit-card ${esc(notice.kind)}">
+        <h2>${esc(notice.title)}</h2>
+        <p>${esc(notice.body)}</p>
+        <button type="button" data-open-picker>Choose another model</button>
+      </div>`;
+    }
     function modeLine() {
-      return `${MODE_META[mode].label} · ${MODE_META[mode].effort} effort`;
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      const name = meta.scarce ? `${meta.label} · Scarce Model` : meta.label;
+      return `${name} · ${MODE_META[mode].label} · ${MODE_META[mode].effort} effort`;
+    }
+    function refreshWelcome() {
+      const welcome = document.querySelector('#list .welcome p');
+      if (welcome) welcome.textContent = modeLine();
     }
     function setMode(next) {
       mode = MODE_META[next] ? next : 'chat';
       try { localStorage.setItem(MODE_KEY, mode); } catch {}
       document.querySelectorAll('[data-mode]').forEach((btn) => btn.classList.toggle('on', btn.dataset.mode === mode));
       $('input').placeholder = mode === 'code' ? 'Describe the program' : mode === 'thinking' ? 'Give Liminal something to work through' : 'Ask Liminal';
-      const welcome = document.querySelector('#list .welcome p');
-      if (welcome) welcome.textContent = modeLine();
+      refreshWelcome();
+    }
+    function closePicker() {
+      $('picker').classList.remove('open');
+      $('picker-menu').hidden = true;
+      $('picker-btn').setAttribute('aria-expanded', 'false');
+    }
+    function openPicker() {
+      renderPicker();
+      $('picker').classList.add('open');
+      $('picker-menu').hidden = false;
+      $('picker-btn').setAttribute('aria-expanded', 'true');
+    }
+    function renderPicker() {
+      $('picker-menu').innerHTML = PROVIDER_ORDER.map((id) => {
+        const meta = PROVIDER_META[id];
+        const on = id === provider;
+        const mark = on ? 'On' : (meta.scarce ? 'Scarce' : '');
+        return `<button class="pick ${on ? 'on' : ''}" type="button" role="option" data-provider="${id}" aria-selected="${on}">
+          <b>${esc(meta.label)}</b>
+          <span class="${meta.scarce ? 'scarce' : ''}">${esc(meta.meta)}</span>
+          ${mark ? `<em class="${meta.scarce && !on ? 'scarce' : ''}">${esc(mark)}</em>` : ''}
+        </button>`;
+      }).join('');
+      $('picker-menu').querySelectorAll('[data-provider]').forEach((btn) => btn.addEventListener('click', () => {
+        setProvider(btn.dataset.provider);
+        closePicker();
+      }));
+    }
+    function syncPhotoBtn() {
+      const vision = !!PROVIDER_META[provider]?.vision;
+      $('photo-btn').classList.toggle('off', !vision);
+      $('photo-btn').title = vision ? 'Attach photo' : `${PROVIDER_META[provider].label} is text-only`;
+      $('photo-btn').setAttribute('aria-label', vision ? 'Attach photo' : `${PROVIDER_META[provider].label} is text-only`);
+    }
+    function syncPicker() {
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      $('picker-name').textContent = meta.label;
+      $('picker-meta').textContent = meta.meta;
+      $('picker-meta').classList.toggle('scarce', !!meta.scarce);
+      syncPhotoBtn();
+      if (!$('picker-menu').hidden) renderPicker();
+    }
+    function visionError() {
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      return `${meta.label} is text-only. Remove photos or switch to Luna, Gemini, or Qwen 3.8 27B.`;
+    }
+    function hasImagesInPlay(queued) {
+      if ((queued || attachments).some((att) => att.kind === 'image')) return true;
+      return msgs.some((m) => !m.deleted && (m.type === 'image' || m.type === 'gif'));
+    }
+    function setProvider(next) {
+      provider = PROVIDER_META[next] ? next : 'openai';
+      try { localStorage.setItem(PROVIDER_KEY, provider); } catch {}
+      clearNotice();
+      setStatus('');
+      syncPicker();
+      refreshWelcome();
+      if (me) renderList();
+    }
+    function replyTag(meta) {
+      const bits = [];
+      const named = PROVIDER_META[meta?.provider]?.label || '';
+      if (named) bits.push(named);
+      if (meta?.mode) bits.push(`${MODE_META[meta.mode]?.label || meta.mode} · ${meta.reasoning_effort || ''}`.trim());
+      return bits.filter(Boolean).join(' · ');
     }
 
     function renderChats() {
@@ -772,7 +1034,10 @@
       const visible = msgs.filter((m) => !m.deleted);
       $('title').textContent = titleOf(current());
       if (!visible.length && !pending) {
-        $('list').innerHTML = `<div class="welcome"><div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div><p>${esc(modeLine())}</p></div>`;
+        $('list').innerHTML = notice
+          ? noticeHtml()
+          : `<div class="welcome"><div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div><p>${esc(modeLine())}</p></div>`;
+        wireRendered($('list'));
         return;
       }
       $('list').innerHTML = visible.map((m) => {
@@ -782,22 +1047,59 @@
         const file = m.type === 'file' && m.media_url ? `<div class="file"><span>${esc(fileName(m.media_url))}</span><a href="${esc(m.media_url)}" target="_blank" rel="noopener">open</a></div>` : '';
         const files = !mine ? artifactCards(meta.files) : '';
         return `<article class="msg ${mine ? 'me' : ''}">
-          <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && meta.mode ? `<span class="mode-tag">${esc(MODE_META[meta.mode]?.label || meta.mode)} · ${esc(meta.reasoning_effort || '')}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
+          <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && replyTag(meta) ? `<span class="mode-tag">${esc(replyTag(meta))}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
           ${!mine ? toolReceipt(meta.tools, true) : ''}
           <div class="bubble"><div class="body">${renderBody(mine ? m.content : stripSourceDump(m.content, meta.sources))}${media}${file}${files}</div></div>
           ${!mine ? sourcesBlock(meta) : ''}
         </article>`;
-      }).join('') + (pending ? liveHtml() : '');
+      }).join('') + (pending ? liveHtml() : '') + (!pending && notice ? noticeHtml() : '');
       wireRendered($('list'));
       $('thread').scrollTop = $('thread').scrollHeight;
     }
 
+    function thinkingGrid() {
+      const xs = [44, 72, 100, 128, 156];
+      const radii = [
+        [6, 7, 8, 7, 6],
+        [7, 9, 10, 9, 7],
+        [8, 10, 12, 10, 8],
+        [7, 9, 10, 9, 7],
+        [6, 7, 8, 7, 6],
+      ];
+      const dots = [];
+      for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 5; col++) {
+          dots.push(`<circle class="dot d${row + col}" cx="${xs[col]}" cy="${xs[row]}" r="${radii[row][col]}"/>`);
+        }
+      }
+      return `<div class="ai-thinking" aria-hidden="true"><svg class="thinking-grid" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${dots.join('')}</svg></div>`;
+    }
     function liveHtml() {
+      const label = live.label || 'thinking';
       return `<div class="live">
-        <div class="think"><span class="dots"><i></i><i></i><i></i></span>${esc(live.label || 'thinking')}</div>
-        ${toolReceipt(live.tools)}
-        ${sourcesBlock({ sources: live.sources })}
+        <div class="think" aria-live="polite" aria-label="${esc(label)}">
+          ${thinkingGrid()}
+          <span class="think-label">${esc(label)}</span>
+        </div>
+        <div class="live-extra">${toolReceipt(live.tools)}${sourcesBlock({ sources: live.sources })}</div>
       </div>`;
+    }
+    function renderLive() {
+      const root = $('list').querySelector('.live');
+      if (!pending || !root) { renderList(); return; }
+      const label = live.label || 'thinking';
+      const think = root.querySelector('.think');
+      const text = root.querySelector('.think-label');
+      if (think) think.setAttribute('aria-label', label);
+      if (text) text.textContent = label;
+      let extra = root.querySelector('.live-extra');
+      if (!extra) {
+        extra = document.createElement('div');
+        extra.className = 'live-extra';
+        root.appendChild(extra);
+      }
+      extra.innerHTML = toolReceipt(live.tools) + sourcesBlock({ sources: live.sources });
+      $('thread').scrollTop = $('thread').scrollHeight;
     }
 
     function wireRendered(root) {
@@ -808,6 +1110,10 @@
         try { await navigator.clipboard.writeText(code.textContent || ''); btn.textContent = 'Copied'; }
         catch { btn.textContent = 'Failed'; }
         setTimeout(() => { btn.textContent = 'Copy'; }, 1100);
+      }));
+      root.querySelectorAll('[data-open-picker]').forEach((btn) => btn.addEventListener('click', () => {
+        openPicker();
+        $('picker-btn').focus();
       }));
       root.querySelectorAll('[data-dl]').forEach((btn) => btn.addEventListener('click', () => {
         const node = btn.closest('.msg');
@@ -983,19 +1289,23 @@
       persistGuest();
     }
     async function maybeTitle(ev) {
-      const dm = current();
-      if (!dm || !untitled(dm)) return;
-      const named = String(ev?.title || '').replace(/\s+/g, ' ').trim();
-      if (named && !untitled({ title: named })) {
-        applyTitle(named);
-        if (!isGuest()) {
-          await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named }).catch(() => null);
+      try {
+        const dm = current();
+        if (!dm || !untitled(dm)) return;
+        const named = String(ev?.title || '').replace(/\s+/g, ' ').trim();
+        if (named && !untitled({ title: named })) {
+          applyTitle(named);
+          if (!isGuest()) {
+            try {
+              await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named });
+            } catch { /* title is best-effort */ }
+          }
+          return;
         }
-        return;
-      }
-      const source = String((msgs.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
-      const words = source.split(' ').filter((w) => w && !/^https?:/i.test(w)).slice(0, 5);
-      if (words.length >= 2) applyTitle(words.join(' '));
+        const source = String((msgs.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
+        const words = source.split(' ').filter((w) => w && !/^https?:/i.test(w)).slice(0, 5);
+        if (words.length >= 2) applyTitle(words.join(' '));
+      } catch { /* title is best-effort */ }
     }
 
     async function deleteChat(id) {
@@ -1072,6 +1382,13 @@
 
     async function addPhoto(file) {
       if (!file || !file.type.startsWith('image/')) return;
+      if (!PROVIDER_META[provider]?.vision) {
+        const text = visionError();
+        setStatus(text, true);
+        showNotice('capability', `${PROVIDER_META[provider].label} cannot see photos`, text);
+        renderList();
+        return;
+      }
       if (attachments.length >= 4) { setStatus('Four attachments max.', true); return; }
       const packed = await compressImage(file);
       attachments.push({ kind: 'image', ...packed });
@@ -1119,7 +1436,8 @@
           if (ev.type === 'sources') live.sources = Array.isArray(ev.sources) ? ev.sources : [];
           if (ev.type === 'error') throw new Error(ev.error || 'Liminal could not answer.');
           if (ev.type === 'done') last = ev;
-          renderList();
+          if (ev.type === 'thinking' || ev.type === 'tool' || ev.type === 'sources') renderLive();
+          else if (ev.type !== 'done') renderList();
         }
       }
       if (buffer.trim()) {
@@ -1142,6 +1460,7 @@
       live = { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [], sources: [] };
       renderList();
       $('send').disabled = true;
+      clearNotice();
       try {
         if (isGuest()) {
           const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
@@ -1150,6 +1469,7 @@
             body: JSON.stringify({
               action: 'guest_reply',
               mode,
+              provider,
               needs_title: untitled(current()),
               messages: msgs.filter((m) => !m.deleted).map((m) => ({
                 id: m.id, sender: m.sender, content: m.content, type: m.type, media_url: m.media_url,
@@ -1167,6 +1487,7 @@
               media_url: null,
               reply_to: {
                 mode: ev.mode || mode,
+                provider: ev.provider || provider,
                 reasoning_effort: ev.reasoning_effort || MODE_META[mode].effort,
                 sources: ev.sources || live.sources || [],
                 tools: ev.tools || live.tools || [],
@@ -1185,7 +1506,7 @@
         const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
           method: 'POST',
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'reply', source_message_id: message.id, mode }),
+          body: JSON.stringify({ action: 'reply', source_message_id: message.id, mode, provider }),
         });
         await consumeStream(res, async (ev) => {
           const doneId = ev?.response_message_id;
@@ -1195,7 +1516,17 @@
           await maybeTitle(ev);
         });
       } catch (err) {
-        setStatus(err?.message || 'Liminal could not answer.', true);
+        const text = err?.message || 'Liminal could not answer.';
+        const clientBug = /is not a function|cannot read|undefined is not|null is not/i.test(text);
+        const answered = msgs.some((m) => !m.deleted && m.sender === AI_USERNAME);
+        if (clientBug && answered) return;
+        if (clientBug) {
+          setStatus('Something went wrong on this page. Refresh and try again.', true);
+          return;
+        }
+        const card = classifyNotice(text);
+        showNotice(card.kind, card.title, card.body);
+        setStatus(text, true);
       } finally {
         pending = false;
         $('send').disabled = false;
@@ -1210,11 +1541,19 @@
       const content = input.value.trim();
       const queued = attachments.slice();
       if (!content && !queued.length) return;
+      if (!PROVIDER_META[provider]?.vision && hasImagesInPlay(queued)) {
+        const text = visionError();
+        setStatus(text, true);
+        showNotice('capability', `${PROVIDER_META[provider].label} cannot see photos`, text);
+        renderList();
+        return;
+      }
       sending = true;
       input.value = '';
       input.style.height = 'auto';
       attachments = [];
       renderChips();
+      clearNotice();
       setStatus('');
       try {
         const dmId = await ensureChat();
@@ -1505,7 +1844,26 @@
       $('menu').addEventListener('click', () => { $('rail').classList.add('open'); $('scrim').hidden = false; });
       $('scrim').addEventListener('click', closeRail);
       document.querySelectorAll('[data-mode]').forEach((btn) => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
-      $('photo-btn').addEventListener('click', () => $('photo').click());
+      $('picker-btn').addEventListener('click', (event) => {
+        event.stopPropagation();
+        $('picker').classList.contains('open') ? closePicker() : openPicker();
+      });
+      document.addEventListener('click', (event) => {
+        if (!$('picker').contains(event.target)) closePicker();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closePicker();
+      });
+      $('photo-btn').addEventListener('click', () => {
+        if (!PROVIDER_META[provider]?.vision) {
+          const text = visionError();
+          setStatus(text, true);
+          showNotice('capability', `${PROVIDER_META[provider].label} cannot see photos`, text);
+          renderList();
+          return;
+        }
+        $('photo').click();
+      });
       $('file-btn').addEventListener('click', () => $('file').click());
       $('photo').addEventListener('change', () => { addPhoto($('photo').files[0]); $('photo').value = ''; });
       $('file').addEventListener('change', () => { addFile($('file').files[0]); $('file').value = ''; });
@@ -1529,6 +1887,7 @@
       mq.addEventListener?.('change', syncMenu);
       syncMenu();
       setMode((() => { try { return localStorage.getItem(MODE_KEY) || 'chat'; } catch { return 'chat'; } })());
+      setProvider((() => { try { return localStorage.getItem(PROVIDER_KEY) || 'openai'; } catch { return 'openai'; } })());
     }
 
     function waitForSupabase() {
