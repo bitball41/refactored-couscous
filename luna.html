@@ -312,7 +312,7 @@
     }
     #input::placeholder { color: var(--muted); opacity: 1; }
     .bar { display: flex; align-items: center; gap: 8px; padding: 4px 4px 2px; }
-    .modes, .models {
+    .modes {
       display: flex;
       gap: 2px;
       padding: 3px;
@@ -320,11 +320,86 @@
       background: #0b0b10;
       flex-shrink: 0;
     }
-    .modes button, .models button {
+    .modes button {
       border: 0; background: transparent; color: var(--muted);
       padding: 6px 12px; border-radius: 999px; font-size: .78rem; font-weight: 800;
     }
-    .modes button.on, .models button.on { background: #fff; color: #111; }
+    .modes button.on { background: #fff; color: #111; }
+    .picker { position: relative; flex-shrink: 0; }
+    .picker-btn {
+      display: flex; align-items: center; gap: 10px;
+      max-width: min(280px, 52vw);
+      border: 0;
+      border-radius: 999px;
+      background: #0b0b10;
+      padding: 6px 10px 6px 12px;
+      text-align: left;
+    }
+    .picker-btn .copy { display: grid; min-width: 0; }
+    .picker-btn b {
+      font-size: .82rem; font-weight: 800; line-height: 1.15;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .picker-btn small {
+      color: var(--muted); font-size: .68rem; font-weight: 700;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .picker-btn svg { width: 12px; height: 12px; color: var(--muted); flex-shrink: 0; }
+    .picker.open .picker-btn { box-shadow: 0 0 0 1px #ffffff22; }
+    .picker-menu {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      width: min(320px, calc(100vw - 28px));
+      display: grid; gap: 4px;
+      padding: 8px;
+      border-radius: 22px;
+      background: #101016;
+      box-shadow: 0 18px 50px #000a, 0 0 0 1px #ffffff12;
+      z-index: 5;
+    }
+    .pick {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1px 10px;
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      background: transparent;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .pick:hover { background: #1a1a22; }
+    .pick.on { background: #fff; color: #111; }
+    .pick b { font-size: .86rem; font-weight: 800; }
+    .pick span { grid-column: 1; color: var(--muted); font-size: .72rem; font-weight: 700; }
+    .pick.on span { color: #5c5c66; }
+    .pick em {
+      grid-column: 2; grid-row: 1 / span 2;
+      align-self: center;
+      font-style: normal; font-size: .68rem; font-weight: 800;
+      color: var(--muted);
+    }
+    .pick.on em { color: #111; }
+    .pick .scarce, .picker-btn .scarce { color: #d8c48a; }
+    .pick.on .scarce { color: #7a6430; }
+    .icon.off { opacity: .38; }
+    .limit-card {
+      min-height: 42vh;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      text-align: center;
+      gap: 12px;
+      padding: 56px 18px;
+    }
+    .limit-card h2 { margin: 0; font: 800 1.4rem/1.2 var(--display); }
+    .limit-card p { margin: 0; max-width: 38ch; color: var(--muted); font-size: .92rem; }
+    .limit-card button {
+      margin-top: 8px;
+      border: 0; border-radius: 999px;
+      background: #fff; color: #111;
+      padding: 8px 14px;
+      font-size: .8rem; font-weight: 800;
+    }
     .grow { flex: 1; }
     .send {
       width: 40px; height: 40px; border: 0; border-radius: 50%;
@@ -535,9 +610,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 8h14M5 12h14M5 16h10"></path></svg>
         </button>
         <h1 id="title">New conversation</h1>
-        <div class="models" role="radiogroup" aria-label="Model">
-          <button type="button" data-provider="openai" class="on">GPT</button>
-          <button type="button" data-provider="gemini">Gemini</button>
+        <div class="picker" id="picker">
+          <button class="picker-btn" id="picker-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="picker-menu">
+            <span class="copy"><b id="picker-name">Luna</b><small id="picker-meta">OpenAI</small></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+          <div class="picker-menu" id="picker-menu" hidden role="listbox" aria-label="Model"></div>
         </div>
       </header>
       <section class="thread" id="thread">
@@ -594,9 +672,13 @@
       thinking: { label: 'Thinking', effort: 'high' },
       code: { label: 'Code', effort: 'xhigh' },
     };
+    const PROVIDER_ORDER = ['openai', 'groq', 'workersai', 'glm', 'gemini'];
     const PROVIDER_META = {
-      openai: { label: 'GPT' },
-      gemini: { label: 'Gemini' },
+      openai: { label: 'Luna', meta: 'OpenAI', vision: true },
+      groq: { label: 'GPT OSS 120B', meta: 'Groq · Text only', vision: false },
+      workersai: { label: 'Qwen 3.8 27B', meta: 'Cloudflare', vision: true },
+      glm: { label: 'GLM 5.2', meta: 'OpenRouter · Text only', vision: false },
+      gemini: { label: 'Gemini', meta: 'Scarce Model', vision: true, scarce: true },
     };
 
     const $ = (id) => document.getElementById(id);
@@ -618,6 +700,7 @@
     let provider = 'openai';
     let attachments = [];
     let live = { label: 'thinking', tools: [], sources: [] };
+    let notice = null;
 
     function isGuest() { return !me || me.guest; }
     function uid() {
@@ -674,8 +757,39 @@
       $('status').textContent = text || '';
       $('status').classList.toggle('bad', !!bad);
     }
+    function clearNotice() {
+      notice = null;
+    }
+    function showNotice(kind, title, body) {
+      notice = { kind, title, body };
+    }
+    function classifyNotice(message) {
+      const text = String(message || '').trim();
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      if (/text-only|photos or switch|cannot see photos/i.test(text)) {
+        return { kind: 'capability', title: `${meta.label} cannot see photos`, body: text };
+      }
+      if (/limit|capacity|too quickly|quota|unavailable|scarce model/i.test(text)) {
+        return {
+          kind: 'limit',
+          title: meta.scarce ? 'This scarce model is at capacity' : 'This model is at capacity',
+          body: text,
+        };
+      }
+      return { kind: 'error', title: 'Liminal could not answer', body: text };
+    }
+    function noticeHtml() {
+      if (!notice) return '';
+      return `<div class="limit-card ${esc(notice.kind)}">
+        <h2>${esc(notice.title)}</h2>
+        <p>${esc(notice.body)}</p>
+        <button type="button" data-open-picker>Choose another model</button>
+      </div>`;
+    }
     function modeLine() {
-      return `${PROVIDER_META[provider].label} · ${MODE_META[mode].label} · ${MODE_META[mode].effort} effort`;
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      const name = meta.scarce ? `${meta.label} · Scarce Model` : meta.label;
+      return `${name} · ${MODE_META[mode].label} · ${MODE_META[mode].effort} effort`;
     }
     function refreshWelcome() {
       const welcome = document.querySelector('#list .welcome p');
@@ -688,11 +802,63 @@
       $('input').placeholder = mode === 'code' ? 'Describe the program' : mode === 'thinking' ? 'Give Liminal something to work through' : 'Ask Liminal';
       refreshWelcome();
     }
+    function closePicker() {
+      $('picker').classList.remove('open');
+      $('picker-menu').hidden = true;
+      $('picker-btn').setAttribute('aria-expanded', 'false');
+    }
+    function openPicker() {
+      renderPicker();
+      $('picker').classList.add('open');
+      $('picker-menu').hidden = false;
+      $('picker-btn').setAttribute('aria-expanded', 'true');
+    }
+    function renderPicker() {
+      $('picker-menu').innerHTML = PROVIDER_ORDER.map((id) => {
+        const meta = PROVIDER_META[id];
+        const on = id === provider;
+        const mark = on ? 'On' : (meta.scarce ? 'Scarce' : '');
+        return `<button class="pick ${on ? 'on' : ''}" type="button" role="option" data-provider="${id}" aria-selected="${on}">
+          <b>${esc(meta.label)}</b>
+          <span class="${meta.scarce ? 'scarce' : ''}">${esc(meta.meta)}</span>
+          ${mark ? `<em class="${meta.scarce && !on ? 'scarce' : ''}">${esc(mark)}</em>` : ''}
+        </button>`;
+      }).join('');
+      $('picker-menu').querySelectorAll('[data-provider]').forEach((btn) => btn.addEventListener('click', () => {
+        setProvider(btn.dataset.provider);
+        closePicker();
+      }));
+    }
+    function syncPhotoBtn() {
+      const vision = !!PROVIDER_META[provider]?.vision;
+      $('photo-btn').classList.toggle('off', !vision);
+      $('photo-btn').title = vision ? 'Attach photo' : `${PROVIDER_META[provider].label} is text-only`;
+      $('photo-btn').setAttribute('aria-label', vision ? 'Attach photo' : `${PROVIDER_META[provider].label} is text-only`);
+    }
+    function syncPicker() {
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      $('picker-name').textContent = meta.label;
+      $('picker-meta').textContent = meta.meta;
+      $('picker-meta').classList.toggle('scarce', !!meta.scarce);
+      syncPhotoBtn();
+      if (!$('picker-menu').hidden) renderPicker();
+    }
+    function visionError() {
+      const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
+      return `${meta.label} is text-only. Remove photos or switch to Luna, Gemini, or Qwen 3.8 27B.`;
+    }
+    function hasImagesInPlay(queued) {
+      if ((queued || attachments).some((att) => att.kind === 'image')) return true;
+      return msgs.some((m) => !m.deleted && (m.type === 'image' || m.type === 'gif'));
+    }
     function setProvider(next) {
       provider = PROVIDER_META[next] ? next : 'openai';
       try { localStorage.setItem(PROVIDER_KEY, provider); } catch {}
-      document.querySelectorAll('[data-provider]').forEach((btn) => btn.classList.toggle('on', btn.dataset.provider === provider));
+      clearNotice();
+      setStatus('');
+      syncPicker();
       refreshWelcome();
+      if (me) renderList();
     }
     function replyTag(meta) {
       const bits = [];
@@ -799,7 +965,10 @@
       const visible = msgs.filter((m) => !m.deleted);
       $('title').textContent = titleOf(current());
       if (!visible.length && !pending) {
-        $('list').innerHTML = `<div class="welcome"><div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div><p>${esc(modeLine())}</p></div>`;
+        $('list').innerHTML = notice
+          ? noticeHtml()
+          : `<div class="welcome"><div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div><p>${esc(modeLine())}</p></div>`;
+        wireRendered($('list'));
         return;
       }
       $('list').innerHTML = visible.map((m) => {
@@ -814,7 +983,7 @@
           <div class="bubble"><div class="body">${renderBody(mine ? m.content : stripSourceDump(m.content, meta.sources))}${media}${file}${files}</div></div>
           ${!mine ? sourcesBlock(meta) : ''}
         </article>`;
-      }).join('') + (pending ? liveHtml() : '');
+      }).join('') + (pending ? liveHtml() : '') + (!pending && notice ? noticeHtml() : '');
       wireRendered($('list'));
       $('thread').scrollTop = $('thread').scrollHeight;
     }
@@ -835,6 +1004,10 @@
         try { await navigator.clipboard.writeText(code.textContent || ''); btn.textContent = 'Copied'; }
         catch { btn.textContent = 'Failed'; }
         setTimeout(() => { btn.textContent = 'Copy'; }, 1100);
+      }));
+      root.querySelectorAll('[data-open-picker]').forEach((btn) => btn.addEventListener('click', () => {
+        openPicker();
+        $('picker-btn').focus();
       }));
       root.querySelectorAll('[data-dl]').forEach((btn) => btn.addEventListener('click', () => {
         const node = btn.closest('.msg');
@@ -1099,6 +1272,13 @@
 
     async function addPhoto(file) {
       if (!file || !file.type.startsWith('image/')) return;
+      if (!PROVIDER_META[provider]?.vision) {
+        const text = visionError();
+        setStatus(text, true);
+        showNotice('capability', `${PROVIDER_META[provider].label} cannot see photos`, text);
+        renderList();
+        return;
+      }
       if (attachments.length >= 4) { setStatus('Four attachments max.', true); return; }
       const packed = await compressImage(file);
       attachments.push({ kind: 'image', ...packed });
@@ -1169,6 +1349,7 @@
       live = { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [], sources: [] };
       renderList();
       $('send').disabled = true;
+      clearNotice();
       try {
         if (isGuest()) {
           const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
@@ -1224,7 +1405,10 @@
           await maybeTitle(ev);
         });
       } catch (err) {
-        setStatus(err?.message || 'Liminal could not answer.', true);
+        const text = err?.message || 'Liminal could not answer.';
+        const card = classifyNotice(text);
+        showNotice(card.kind, card.title, card.body);
+        setStatus(text, true);
       } finally {
         pending = false;
         $('send').disabled = false;
@@ -1239,11 +1423,19 @@
       const content = input.value.trim();
       const queued = attachments.slice();
       if (!content && !queued.length) return;
+      if (!PROVIDER_META[provider]?.vision && hasImagesInPlay(queued)) {
+        const text = visionError();
+        setStatus(text, true);
+        showNotice('capability', `${PROVIDER_META[provider].label} cannot see photos`, text);
+        renderList();
+        return;
+      }
       sending = true;
       input.value = '';
       input.style.height = 'auto';
       attachments = [];
       renderChips();
+      clearNotice();
       setStatus('');
       try {
         const dmId = await ensureChat();
@@ -1534,8 +1726,26 @@
       $('menu').addEventListener('click', () => { $('rail').classList.add('open'); $('scrim').hidden = false; });
       $('scrim').addEventListener('click', closeRail);
       document.querySelectorAll('[data-mode]').forEach((btn) => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
-      document.querySelectorAll('[data-provider]').forEach((btn) => btn.addEventListener('click', () => setProvider(btn.dataset.provider)));
-      $('photo-btn').addEventListener('click', () => $('photo').click());
+      $('picker-btn').addEventListener('click', (event) => {
+        event.stopPropagation();
+        $('picker').classList.contains('open') ? closePicker() : openPicker();
+      });
+      document.addEventListener('click', (event) => {
+        if (!$('picker').contains(event.target)) closePicker();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closePicker();
+      });
+      $('photo-btn').addEventListener('click', () => {
+        if (!PROVIDER_META[provider]?.vision) {
+          const text = visionError();
+          setStatus(text, true);
+          showNotice('capability', `${PROVIDER_META[provider].label} cannot see photos`, text);
+          renderList();
+          return;
+        }
+        $('photo').click();
+      });
       $('file-btn').addEventListener('click', () => $('file').click());
       $('photo').addEventListener('change', () => { addPhoto($('photo').files[0]); $('photo').value = ''; });
       $('file').addEventListener('change', () => { addFile($('file').files[0]); $('file').value = ''; });
