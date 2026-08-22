@@ -221,7 +221,28 @@
     .receipt summary::-webkit-details-marker { display: none; }
     .receipt summary::after { content: " ▾"; font-weight: 600; }
     .receipt[open] summary { margin-bottom: 2px; }
-    .receipt .kicker, .sources .kicker { color: var(--muted); font-size: .72rem; font-weight: 800; }
+    .receipt .kicker, .sources .kicker, .reason .kicker { color: var(--muted); font-size: .72rem; font-weight: 800; }
+    .reason {
+      display: grid;
+      gap: 7px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: #14141b;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    .reason summary {
+      list-style: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .reason summary::-webkit-details-marker { display: none; }
+    .reason summary::after { content: " ▾"; font-weight: 600; }
+    .reason[open] summary { margin-bottom: 2px; }
+    .reason-body { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--fg); }
     .tool { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 8px; align-items: start; }
     .tool i {
       width: 7px; height: 7px; border-radius: 50%;
@@ -338,13 +359,14 @@
       font-weight: 700;
     }
     .src small { color: var(--muted); font-size: .7rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .dock { padding: 0 18px 18px; }
-    .composer { width: min(760px, 100%); margin: 0 auto; display: grid; gap: 8px; }
+    .dock { padding: 0 18px 18px; overflow: visible; position: relative; z-index: 4; }
+    .composer { width: min(760px, 100%); margin: 0 auto; display: grid; gap: 8px; overflow: visible; }
     .box {
       border-radius: 28px;
       background: #101016;
       padding: 12px 12px 10px;
       box-shadow: 0 16px 40px #0006, 0 0 0 1px #ffffff10;
+      overflow: visible;
     }
     .box:focus-within { box-shadow: 0 16px 40px #0006, 0 0 0 2px #fff; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 4px 8px; }
@@ -380,7 +402,7 @@
       caret-color: var(--fg);
     }
     #input::placeholder { color: var(--muted); opacity: 1; }
-    .bar { display: flex; align-items: center; gap: 8px; padding: 4px 4px 2px; }
+    .bar { display: flex; align-items: center; gap: 8px; padding: 4px 4px 2px; flex-wrap: wrap; }
     .modes {
       display: flex;
       gap: 2px;
@@ -397,7 +419,7 @@
     .picker { position: relative; flex-shrink: 0; }
     .picker-btn {
       display: flex; align-items: center; gap: 10px;
-      max-width: min(280px, 52vw);
+      max-width: min(220px, 100%);
       border: 0;
       border-radius: 999px;
       background: #0b0b10;
@@ -416,14 +438,14 @@
     .picker-btn svg { width: 12px; height: 12px; color: var(--muted); flex-shrink: 0; }
     .picker.open .picker-btn { box-shadow: 0 0 0 1px #ffffff22; }
     .picker-menu {
-      position: absolute; right: 0; top: calc(100% + 8px);
+      position: absolute; left: 0; right: auto; top: auto; bottom: calc(100% + 8px);
       width: min(320px, calc(100vw - 28px));
       display: grid; gap: 4px;
       padding: 8px;
       border-radius: 22px;
       background: #101016;
       box-shadow: 0 18px 50px #000a, 0 0 0 1px #ffffff12;
-      z-index: 5;
+      z-index: 8;
     }
     .pick {
       display: grid;
@@ -679,13 +701,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 8h14M5 12h14M5 16h10"></path></svg>
         </button>
         <h1 id="title">New conversation</h1>
-        <div class="picker" id="picker">
-          <button class="picker-btn" id="picker-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="picker-menu">
-            <span class="copy"><b id="picker-name">Luna</b><small id="picker-meta">OpenAI</small></span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
-          </button>
-          <div class="picker-menu" id="picker-menu" hidden role="listbox" aria-label="Model"></div>
-        </div>
       </header>
       <section class="thread" id="thread">
         <div class="thread-inner" id="list"></div>
@@ -697,6 +712,13 @@
               <div class="chips" id="chips" hidden></div>
               <textarea id="input" rows="1" maxlength="4000" placeholder="Ask Liminal" aria-label="Message Liminal"></textarea>
               <div class="bar">
+                <div class="picker" id="picker">
+                  <button class="picker-btn" id="picker-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="picker-menu">
+                    <span class="copy"><b id="picker-name">Luna</b><small id="picker-meta">OpenAI</small></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
+                  </button>
+                  <div class="picker-menu" id="picker-menu" hidden role="listbox" aria-label="Model"></div>
+                </div>
                 <div class="modes" role="radiogroup" aria-label="Mode">
                   <button type="button" data-mode="chat" class="on">Chat</button>
                   <button type="button" data-mode="thinking">Thinking</button>
@@ -744,9 +766,9 @@
     const PROVIDER_ORDER = ['openai', 'groq', 'workersai', 'glm', 'gemini'];
     const PROVIDER_META = {
       openai: { label: 'Luna', meta: 'OpenAI', vision: true },
-      groq: { label: 'GPT OSS 120B', meta: 'Groq · Text only', vision: false },
-      workersai: { label: 'Qwen 3.8 27B', meta: 'Cloudflare', vision: true },
-      glm: { label: 'GLM 5.2', meta: 'OpenRouter · Text only', vision: false },
+      groq: { label: 'GPT OSS 120B', meta: 'Scarce Model · Text only', vision: false, scarce: true },
+      workersai: { label: 'Qwen 3.8 27B', meta: 'Scarce Model', vision: true, scarce: true },
+      glm: { label: 'GLM 5.2', meta: 'Scarce Model · Text only', vision: false, scarce: true },
       gemini: { label: 'Gemini', meta: 'Scarce Model', vision: true, scarce: true },
     };
 
@@ -979,6 +1001,14 @@
       if (collapsed) return `<details class="receipt"><summary>${esc(toolSummary(tools))}</summary>${rows}</details>`;
       return `<div class="receipt">${rows}</div>`;
     }
+    function reasoningText(meta) {
+      return String(meta?.reasoning || '').trim();
+    }
+    function reasonBlock(meta) {
+      const text = reasoningText(meta);
+      if (!text) return '';
+      return `<details class="reason"><summary>Reasoning</summary><div class="reason-body">${renderBody(text)}</div></details>`;
+    }
 
     function sourceHost(url) {
       try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; }
@@ -1049,6 +1079,7 @@
         return `<article class="msg ${mine ? 'me' : ''}">
           <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && replyTag(meta) ? `<span class="mode-tag">${esc(replyTag(meta))}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
           ${!mine ? toolReceipt(meta.tools, true) : ''}
+          ${!mine ? reasonBlock(meta) : ''}
           <div class="bubble"><div class="body">${renderBody(mine ? m.content : stripSourceDump(m.content, meta.sources))}${media}${file}${files}</div></div>
           ${!mine ? sourcesBlock(meta) : ''}
         </article>`;
@@ -1282,11 +1313,25 @@
     function applyTitle(title) {
       const dm = current();
       const candidate = String(title || '').replace(/\s+/g, ' ').trim().slice(0, 64);
-      if (!dm || !candidate) return;
+      if (!dm || !candidate || untitled({ title: candidate })) return;
       dm.title = candidate;
       $('title').textContent = titleOf(dm);
       renderChats();
       persistGuest();
+    }
+    function titleFromMessage(content) {
+      const words = String(content || '')
+        .replace(/https?:\/\/\S+/gi, ' ')
+        .replace(/@\w+/g, ' ')
+        .replace(/[`*_~|>#]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 6);
+      if (!words.length) return '';
+      const named = words.join(' ');
+      return named.charAt(0).toUpperCase() + named.slice(1);
     }
     async function maybeTitle(ev) {
       try {
@@ -1297,14 +1342,22 @@
           applyTitle(named);
           if (!isGuest()) {
             try {
-              await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named });
-            } catch { /* title is best-effort */ }
+              const { data } = await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named });
+              if (data) applyTitle(String(data));
+            } catch { /* local title still applied */ }
           }
           return;
         }
-        const source = String((msgs.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
-        const words = source.split(' ').filter((w) => w && !/^https?:/i.test(w)).slice(0, 5);
-        if (words.length >= 2) applyTitle(words.join(' '));
+        const source = (msgs.filter((m) => m.sender !== AI_USERNAME && !m.deleted).slice(-1)[0] || {}).content || '';
+        const fallback = titleFromMessage(source);
+        if (!fallback) return;
+        applyTitle(fallback);
+        if (!isGuest()) {
+          try {
+            const { data } = await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: fallback });
+            if (data) applyTitle(String(data));
+          } catch { /* local title still applied */ }
+        }
       } catch { /* title is best-effort */ }
     }
 
@@ -1489,6 +1542,7 @@
                 mode: ev.mode || mode,
                 provider: ev.provider || provider,
                 reasoning_effort: ev.reasoning_effort || MODE_META[mode].effort,
+                reasoning: String(ev.reasoning || '').trim(),
                 sources: ev.sources || live.sources || [],
                 tools: ev.tools || live.tools || [],
                 files: (ev.files || []).map((f) => ({ ...f, content: f.content || '' })),
@@ -1506,13 +1560,20 @@
         const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
           method: 'POST',
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'reply', source_message_id: message.id, mode, provider }),
+          body: JSON.stringify({
+            action: 'reply',
+            source_message_id: message.id,
+            mode,
+            provider,
+            needs_title: untitled(current()),
+          }),
         });
         await consumeStream(res, async (ev) => {
           const doneId = ev?.response_message_id;
-          if (!doneId) return;
-          const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', doneId).maybeSingle();
-          if (row) ingest(row);
+          if (doneId) {
+            const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', doneId).maybeSingle();
+            if (row) ingest(row);
+          }
           await maybeTitle(ev);
         });
       } catch (err) {
