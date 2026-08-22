@@ -1183,19 +1183,23 @@
       persistGuest();
     }
     async function maybeTitle(ev) {
-      const dm = current();
-      if (!dm || !untitled(dm)) return;
-      const named = String(ev?.title || '').replace(/\s+/g, ' ').trim();
-      if (named && !untitled({ title: named })) {
-        applyTitle(named);
-        if (!isGuest()) {
-          await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named }).catch(() => null);
+      try {
+        const dm = current();
+        if (!dm || !untitled(dm)) return;
+        const named = String(ev?.title || '').replace(/\s+/g, ' ').trim();
+        if (named && !untitled({ title: named })) {
+          applyTitle(named);
+          if (!isGuest()) {
+            try {
+              await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named });
+            } catch { /* title is best-effort */ }
+          }
+          return;
         }
-        return;
-      }
-      const source = String((msgs.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
-      const words = source.split(' ').filter((w) => w && !/^https?:/i.test(w)).slice(0, 5);
-      if (words.length >= 2) applyTitle(words.join(' '));
+        const source = String((msgs.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
+        const words = source.split(' ').filter((w) => w && !/^https?:/i.test(w)).slice(0, 5);
+        if (words.length >= 2) applyTitle(words.join(' '));
+      } catch { /* title is best-effort */ }
     }
 
     async function deleteChat(id) {
@@ -1406,6 +1410,13 @@
         });
       } catch (err) {
         const text = err?.message || 'Liminal could not answer.';
+        const clientBug = /is not a function|cannot read|undefined is not|null is not/i.test(text);
+        const answered = msgs.some((m) => !m.deleted && m.sender === AI_USERNAME);
+        if (clientBug && answered) return;
+        if (clientBug) {
+          setStatus('Something went wrong on this page. Refresh and try again.', true);
+          return;
+        }
         const card = classifyNotice(text);
         showNotice(card.kind, card.title, card.body);
         setStatus(text, true);
