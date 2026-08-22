@@ -235,25 +235,94 @@
     .tool em { font-style: normal; color: var(--muted); }
     @keyframes pulse { 50% { opacity: .25; transform: scale(.7); } }
     .live { display: grid; gap: 10px; justify-items: start; max-width: min(640px, 100%); }
+    .live-extra { display: grid; gap: 10px; width: 100%; }
     .think {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: var(--bubble);
+      display: inline-flex; align-items: center; gap: 12px;
       color: var(--muted);
       font-size: .86rem;
       font-weight: 700;
     }
-    .dots { display: flex; gap: 5px; }
-    .dots i {
-      width: 7px; height: 7px; border-radius: 50%; background: #fff;
-      animation: bounce 1s ease-in-out infinite;
+    .ai-thinking {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .dots i:nth-child(2) { animation-delay: .12s; }
-    .dots i:nth-child(3) { animation-delay: .24s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: translateY(0); opacity: .35; }
-      40% { transform: translateY(-4px); opacity: 1; }
+    .thinking-grid {
+      width: 52px;
+      height: 52px;
+      display: block;
+      color: #fff;
+    }
+    .thinking-grid .dot {
+      fill: currentColor;
+      transform-box: fill-box;
+      transform-origin: center;
+      opacity: .20;
+    }
+    .thinking-grid .d0 { animation: think-d0 2.2s linear infinite; }
+    .thinking-grid .d1 { animation: think-d1 2.2s linear infinite; }
+    .thinking-grid .d2 { animation: think-d2 2.2s linear infinite; }
+    .thinking-grid .d3 { animation: think-d3 2.2s linear infinite; }
+    .thinking-grid .d4 { animation: think-d4 2.2s linear infinite; }
+    .thinking-grid .d5 { animation: think-d5 2.2s linear infinite; }
+    .thinking-grid .d6 { animation: think-d6 2.2s linear infinite; }
+    .thinking-grid .d7 { animation: think-d7 2.2s linear infinite; }
+    .thinking-grid .d8 { animation: think-d8 2.2s linear infinite; }
+    @keyframes think-d0 {
+      0%,100% { transform:scale(1.12); opacity:.82; }
+      6%,94% { transform:scale(1.05); opacity:.44; }
+      12%,88%,50% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d1 {
+      0%,100% { transform:scale(1.05); opacity:.44; }
+      6%,94% { transform:scale(1.12); opacity:.82; }
+      12%,88% { transform:scale(1.05); opacity:.44; }
+      18%,82%,50% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d2 {
+      6%,94% { transform:scale(1.05); opacity:.44; }
+      12%,88% { transform:scale(1.12); opacity:.82; }
+      18%,82% { transform:scale(1.05); opacity:.44; }
+      24%,76% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d3 {
+      12%,88% { transform:scale(1.05); opacity:.44; }
+      18%,82% { transform:scale(1.12); opacity:.82; }
+      24%,76% { transform:scale(1.05); opacity:.44; }
+      30%,70% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d4 {
+      18%,82% { transform:scale(1.05); opacity:.44; }
+      25%,75% { transform:scale(1.12); opacity:.82; }
+      32%,68% { transform:scale(1.05); opacity:.44; }
+      39%,61% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d5 {
+      25%,75% { transform:scale(1.05); opacity:.44; }
+      31%,69% { transform:scale(1.12); opacity:.82; }
+      37%,63% { transform:scale(1.05); opacity:.44; }
+      43%,57% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d6 {
+      31%,69% { transform:scale(1.05); opacity:.44; }
+      37%,63% { transform:scale(1.12); opacity:.82; }
+      43%,57% { transform:scale(1.05); opacity:.44; }
+      50% { transform:scale(1); opacity:.20; }
+    }
+    @keyframes think-d7 {
+      37%,63% { transform:scale(1.05); opacity:.44; }
+      43%,57% { transform:scale(1.12); opacity:.82; }
+      50% { transform:scale(1.05); opacity:.44; }
+    }
+    @keyframes think-d8 {
+      0%,37%,63%,100% { transform:scale(1); opacity:.20; }
+      43%,57% { transform:scale(1.05); opacity:.44; }
+      50% { transform:scale(1.12); opacity:.82; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .thinking-grid .dot { animation: none !important; opacity: .36; }
+      .thinking-grid .d4 { opacity: .82; }
     }
     .sources { display: grid; gap: 8px; width: 100%; }
     .src-list { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -988,12 +1057,49 @@
       $('thread').scrollTop = $('thread').scrollHeight;
     }
 
+    function thinkingGrid() {
+      const xs = [44, 72, 100, 128, 156];
+      const radii = [
+        [6, 7, 8, 7, 6],
+        [7, 9, 10, 9, 7],
+        [8, 10, 12, 10, 8],
+        [7, 9, 10, 9, 7],
+        [6, 7, 8, 7, 6],
+      ];
+      const dots = [];
+      for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 5; col++) {
+          dots.push(`<circle class="dot d${row + col}" cx="${xs[col]}" cy="${xs[row]}" r="${radii[row][col]}"/>`);
+        }
+      }
+      return `<div class="ai-thinking" aria-hidden="true"><svg class="thinking-grid" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${dots.join('')}</svg></div>`;
+    }
     function liveHtml() {
+      const label = live.label || 'thinking';
       return `<div class="live">
-        <div class="think"><span class="dots"><i></i><i></i><i></i></span>${esc(live.label || 'thinking')}</div>
-        ${toolReceipt(live.tools)}
-        ${sourcesBlock({ sources: live.sources })}
+        <div class="think" aria-live="polite" aria-label="${esc(label)}">
+          ${thinkingGrid()}
+          <span class="think-label">${esc(label)}</span>
+        </div>
+        <div class="live-extra">${toolReceipt(live.tools)}${sourcesBlock({ sources: live.sources })}</div>
       </div>`;
+    }
+    function renderLive() {
+      const root = $('list').querySelector('.live');
+      if (!pending || !root) { renderList(); return; }
+      const label = live.label || 'thinking';
+      const think = root.querySelector('.think');
+      const text = root.querySelector('.think-label');
+      if (think) think.setAttribute('aria-label', label);
+      if (text) text.textContent = label;
+      let extra = root.querySelector('.live-extra');
+      if (!extra) {
+        extra = document.createElement('div');
+        extra.className = 'live-extra';
+        root.appendChild(extra);
+      }
+      extra.innerHTML = toolReceipt(live.tools) + sourcesBlock({ sources: live.sources });
+      $('thread').scrollTop = $('thread').scrollHeight;
     }
 
     function wireRendered(root) {
@@ -1330,7 +1436,8 @@
           if (ev.type === 'sources') live.sources = Array.isArray(ev.sources) ? ev.sources : [];
           if (ev.type === 'error') throw new Error(ev.error || 'Liminal could not answer.');
           if (ev.type === 'done') last = ev;
-          renderList();
+          if (ev.type === 'thinking' || ev.type === 'tool' || ev.type === 'sources') renderLive();
+          else if (ev.type !== 'done') renderList();
         }
       }
       if (buffer.trim()) {
