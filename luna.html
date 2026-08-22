@@ -32,7 +32,7 @@
       --display: Fredoka, var(--sans);
     }
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html, body { height: 100%; height: 100dvh; }
     body {
       margin: 0;
       background: radial-gradient(1200px 700px at 50% -10%, #16161d 0%, var(--bg) 58%);
@@ -222,6 +222,12 @@
     .receipt summary::after { content: " ▾"; font-weight: 600; }
     .receipt[open] summary { margin-bottom: 2px; }
     .receipt .kicker, .sources .kicker { color: var(--muted); font-size: .72rem; font-weight: 800; }
+    .reasoning {
+      white-space: pre-wrap; overflow-wrap: anywhere;
+      color: var(--muted); font-size: .8rem;
+      max-height: 260px; overflow: auto;
+      padding: 4px 0 2px;
+    }
     .tool { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 8px; align-items: start; }
     .tool i {
       width: 7px; height: 7px; border-radius: 50%;
@@ -717,7 +723,7 @@
               </div>
             </div>
           </form>
-          <div class="status" id="status"></div>
+          <div class="status" id="status" aria-live="polite"></div>
         </div>
       </div>
     </main>
@@ -746,7 +752,7 @@
       openai: { label: 'Luna', meta: 'OpenAI', vision: true },
       groq: { label: 'GPT OSS 120B', meta: 'Groq · Text only', vision: false },
       workersai: { label: 'Qwen 3.8 27B', meta: 'Cloudflare', vision: true },
-      glm: { label: 'GLM 5.2', meta: 'OpenRouter · Text only', vision: false },
+      glm: { label: 'GLM 5.2', meta: 'ModelScope · Text only', vision: false },
       gemini: { label: 'Gemini', meta: 'Scarce Model', vision: true, scarce: true },
     };
 
@@ -763,23 +769,67 @@
     let currentId = null;
     let msgs = [];
     let seen = new Set();
-    let pending = false;
+    const pendingFor = new Set();
+    const liveBy = new Map();
     let sending = false;
     let mode = 'chat';
     let provider = 'openai';
     let attachments = [];
-    let live = { label: 'thinking', tools: [], sources: [] };
     let notice = null;
+    let openSeq = 0;
+
+    function liveFor(id) {
+      let state = liveBy.get(id);
+      if (!state) {
+        state = { label: 'thinking', tools: [], sources: [] };
+        liveBy.set(id, state);
+      }
+      return state;
+    }
+    function syncSendBtn() {
+      const btn = $('send');
+      if (btn) btn.disabled = pendingFor.has(currentId);
+    }
+    function nearBottom() {
+      const thread = $('thread');
+      return thread.scrollHeight - thread.scrollTop - thread.clientHeight < 120;
+    }
+    function scrollThread(force) {
+      if (force || nearBottom()) $('thread').scrollTop = $('thread').scrollHeight;
+    }
 
     function isGuest() { return !me || me.guest; }
     function uid() {
       try { return crypto.randomUUID(); } catch { return `g-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`; }
     }
+    let guestQuotaWarned = false;
     function persistGuest() {
       if (!isGuest()) return;
       const current = chats.find((d) => d.id === currentId);
       if (current) current.messages = msgs.slice();
-      try { localStorage.setItem(GUEST_KEY, JSON.stringify({ chats, currentId })); } catch {}
+      // Guest history lives in a ~5 MB localStorage box and image previews are
+      // data URLs. On quota pressure, degrade gracefully: first drop stored
+      // image bytes (text survives), then the oldest conversations.
+      let payload = { chats, currentId };
+      try { localStorage.setItem(GUEST_KEY, JSON.stringify(payload)); return; } catch {}
+      try {
+        for (const chat of chats) {
+          for (const m of chat.messages || []) {
+            if (m.media_url && String(m.media_url).startsWith('data:')) m.media_url = null;
+          }
+        }
+        payload = { chats, currentId };
+        localStorage.setItem(GUEST_KEY, JSON.stringify(payload));
+        return;
+      } catch {}
+      while (chats.length > 1) {
+        chats.splice(chats.length - 1, 1);
+        try { localStorage.setItem(GUEST_KEY, JSON.stringify({ chats, currentId })); break; } catch {}
+      }
+      if (!guestQuotaWarned) {
+        guestQuotaWarned = true;
+        setStatus('Guest storage is full on this device, so older history was trimmed. Sign in to keep everything.', true);
+      }
     }
     function readGuest() {
       try { return JSON.parse(localStorage.getItem(GUEST_KEY) || 'null'); } catch { return null; }
@@ -832,13 +882,24 @@
     function showNotice(kind, title, body) {
       notice = { kind, title, body };
     }
-    function classifyNotice(message) {
+    function classifyNotice(code, message) {
       const text = String(message || '').trim();
       const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
-      if (/text-only|photos or switch|cannot see photos/i.test(text)) {
+      const key = String(code || '');
+      if (/^vision_/.test(key) || /text-only|photos or switch|cannot see photos/i.test(text)) {
         return { kind: 'capability', title: `${meta.label} cannot see photos`, body: text };
       }
-      if (/limit|capacity|too quickly|quota|unavailable|scarce model/i.test(text)) {
+      if (key === 'rate_minute' || key === 'rate_day' || /_429_|_unavailable$|_paid_fallback$/.test(key)) {
+        return {
+          kind: 'limit',
+          title: meta.scarce ? 'This scarce model is at capacity' : 'This model is at capacity',
+          body: text,
+        };
+      }
+      if (/_not_configured$/.test(key)) {
+        return { kind: 'error', title: `${meta.label} is not configured yet`, body: text };
+      }
+      if (!key && /limit|capacity|too quickly|quota|scarce model/i.test(text)) {
         return {
           kind: 'limit',
           title: meta.scarce ? 'This scarce model is at capacity' : 'This model is at capacity',
@@ -916,9 +977,8 @@
       const meta = PROVIDER_META[provider] || PROVIDER_META.openai;
       return `${meta.label} is text-only. Remove photos or switch to Luna, Gemini, or Qwen 3.8 27B.`;
     }
-    function hasImagesInPlay(queued) {
-      if ((queued || attachments).some((att) => att.kind === 'image')) return true;
-      return msgs.some((m) => !m.deleted && (m.type === 'image' || m.type === 'gif'));
+    function hasQueuedImages(queued) {
+      return (queued || attachments).some((att) => att.kind === 'image');
     }
     function setProvider(next) {
       provider = PROVIDER_META[next] ? next : 'openai';
@@ -1005,8 +1065,9 @@
         const url = safeHttpUrl(item?.url) || String(item?.url || '').trim();
         if (!url) continue;
         const escaped = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Only strip list-item lines that are just the URL; bare inline
+        // mentions stay so sentences are not mangled.
         out = out.replace(new RegExp(`(?:\\n|^)[ \\t]*(?:[-*]|\\d+\\.)?[ \\t]*${escaped}[ \\t]*`, 'g'), '\n');
-        out = out.replace(new RegExp(`\\s*${escaped}`, 'g'), '');
       }
       out = out.replace(/\n+(?:#{1,3}\s*)?(?:\*\*)?(?:sources?|citations?|references?)(?:\*\*)?\s*:?[ \t]*$/i, '');
       return out.replace(/\n{3,}/g, '\n\n').trim();
@@ -1030,14 +1091,17 @@
         </div>`).join('');
     }
 
-    function renderList() {
+    function renderList(forceScroll) {
       const visible = msgs.filter((m) => !m.deleted);
+      const pending = pendingFor.has(currentId);
+      const stick = forceScroll || nearBottom();
       $('title').textContent = titleOf(current());
       if (!visible.length && !pending) {
         $('list').innerHTML = notice
           ? noticeHtml()
           : `<div class="welcome"><div class="wordmark"><span class="brand-title">Liminal</span><span class="brand-subtitle">AI</span></div><p>${esc(modeLine())}</p></div>`;
         wireRendered($('list'));
+        syncSendBtn();
         return;
       }
       $('list').innerHTML = visible.map((m) => {
@@ -1046,15 +1110,19 @@
         const media = (m.type === 'image' || m.type === 'gif') && m.media_url ? `<img src="${esc(m.media_url)}" alt="">` : '';
         const file = m.type === 'file' && m.media_url ? `<div class="file"><span>${esc(fileName(m.media_url))}</span><a href="${esc(m.media_url)}" target="_blank" rel="noopener">open</a></div>` : '';
         const files = !mine ? artifactCards(meta.files) : '';
+        const reasoning = !mine && meta.reasoning
+          ? `<details class="receipt"><summary>Reasoning</summary><div class="reasoning">${esc(meta.reasoning)}</div></details>`
+          : '';
         return `<article class="msg ${mine ? 'me' : ''}">
           <div class="who"><b>${mine ? 'You' : 'Luna'}</b>${!mine && replyTag(meta) ? `<span class="mode-tag">${esc(replyTag(meta))}</span>` : ''}<time>${esc(timeFmt.format(new Date(m.created_at)))}</time></div>
-          ${!mine ? toolReceipt(meta.tools, true) : ''}
+          ${!mine ? reasoning + toolReceipt(meta.tools, true) : ''}
           <div class="bubble"><div class="body">${renderBody(mine ? m.content : stripSourceDump(m.content, meta.sources))}${media}${file}${files}</div></div>
           ${!mine ? sourcesBlock(meta) : ''}
         </article>`;
       }).join('') + (pending ? liveHtml() : '') + (!pending && notice ? noticeHtml() : '');
       wireRendered($('list'));
-      $('thread').scrollTop = $('thread').scrollHeight;
+      scrollThread(stick);
+      syncSendBtn();
     }
 
     function thinkingGrid() {
@@ -1075,6 +1143,7 @@
       return `<div class="ai-thinking" aria-hidden="true"><svg class="thinking-grid" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${dots.join('')}</svg></div>`;
     }
     function liveHtml() {
+      const live = liveFor(currentId);
       const label = live.label || 'thinking';
       return `<div class="live">
         <div class="think" aria-live="polite" aria-label="${esc(label)}">
@@ -1084,9 +1153,11 @@
         <div class="live-extra">${toolReceipt(live.tools)}${sourcesBlock({ sources: live.sources })}</div>
       </div>`;
     }
-    function renderLive() {
+    function renderLive(dmId) {
+      if (dmId !== currentId || !pendingFor.has(dmId)) return;
+      const live = liveFor(dmId);
       const root = $('list').querySelector('.live');
-      if (!pending || !root) { renderList(); return; }
+      if (!root) { renderList(); return; }
       const label = live.label || 'thinking';
       const think = root.querySelector('.think');
       const text = root.querySelector('.think-label');
@@ -1099,7 +1170,7 @@
         root.appendChild(extra);
       }
       extra.innerHTML = toolReceipt(live.tools) + sourcesBlock({ sources: live.sources });
-      $('thread').scrollTop = $('thread').scrollHeight;
+      scrollThread(false);
     }
 
     function wireRendered(root) {
@@ -1203,9 +1274,11 @@
     }
 
     async function loadMessages(id) {
-      const { data, error } = await sb.from('dm_messages').select(COLS).eq('dm_id', id).order('created_at', { ascending: true }).limit(200);
+      // Newest 200, then restored to chronological order. Ascending+limit would
+      // silently freeze long conversations at their first 200 messages.
+      const { data, error } = await sb.from('dm_messages').select(COLS).eq('dm_id', id).order('created_at', { ascending: false }).limit(200);
       if (error) throw error;
-      msgs = data || [];
+      msgs = (data || []).reverse();
       seen = new Set(msgs.map((m) => m.id));
     }
 
@@ -1221,9 +1294,9 @@
         }
       }
       chats.sort((a, b) => new Date(b.lastMsg?.created_at || b.created_at) - new Date(a.lastMsg?.created_at || a.created_at));
+      if (m.sender === AI_USERNAME) pendingFor.delete(m.dm_id);
       if (m.dm_id === currentId) {
         msgs.push(m);
-        if (m.sender === AI_USERNAME) pending = false;
         renderList();
       }
       renderChats();
@@ -1231,18 +1304,17 @@
     }
 
     async function openChat(id) {
+      const seq = ++openSeq;
       if (isGuest()) {
         const prev = chats.find((d) => d.id === currentId);
         if (prev) prev.messages = msgs.slice();
       }
       currentId = id;
-      pending = false;
-      live = { label: 'thinking', tools: [], sources: [] };
       try { sessionStorage.setItem(LAST_KEY, id || ''); } catch {}
       closeRail();
       if (!id) {
         msgs = []; seen = new Set();
-        renderChats(); renderList(); setStatus(''); $('input').focus();
+        renderChats(); renderList(true); setStatus(''); $('input').focus();
         persistGuest();
         return;
       }
@@ -1250,12 +1322,13 @@
         const chat = chats.find((d) => d.id === id);
         msgs = (chat?.messages || []).slice();
         seen = new Set(msgs.map((m) => m.id));
-        renderChats(); renderList(); $('input').focus();
+        renderChats(); renderList(true); $('input').focus();
         persistGuest();
         return;
       }
       await loadMessages(id);
-      renderChats(); renderList(); $('input').focus();
+      if (seq !== openSeq) return;
+      renderChats(); renderList(true); $('input').focus();
     }
 
     async function ensureChat() {
@@ -1279,22 +1352,22 @@
       return currentId;
     }
 
-    function applyTitle(title) {
-      const dm = current();
+    function applyTitle(title, dmId) {
+      const dm = chats.find((d) => d.id === (dmId || currentId));
       const candidate = String(title || '').replace(/\s+/g, ' ').trim().slice(0, 64);
       if (!dm || !candidate) return;
       dm.title = candidate;
-      $('title').textContent = titleOf(dm);
+      if (dm.id === currentId) $('title').textContent = titleOf(dm);
       renderChats();
       persistGuest();
     }
-    async function maybeTitle(ev) {
+    async function maybeTitle(ev, dmId) {
       try {
-        const dm = current();
+        const dm = chats.find((d) => d.id === (dmId || currentId));
         if (!dm || !untitled(dm)) return;
         const named = String(ev?.title || '').replace(/\s+/g, ' ').trim();
         if (named && !untitled({ title: named })) {
-          applyTitle(named);
+          applyTitle(named, dm.id);
           if (!isGuest()) {
             try {
               await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: named });
@@ -1302,37 +1375,55 @@
           }
           return;
         }
-        const source = String((msgs.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
+        const history = (isGuest() ? (dm.messages || []) : (dm.id === currentId ? msgs : (dm.messages || [])));
+        const source = String((history.filter((m) => m.sender !== AI_USERNAME).slice(-1)[0] || {}).content || '').replace(/\s+/g, ' ').trim();
         const words = source.split(' ').filter((w) => w && !/^https?:/i.test(w)).slice(0, 5);
-        if (words.length >= 2) applyTitle(words.join(' '));
+        if (words.length >= 2) {
+          const fallback = words.join(' ');
+          applyTitle(fallback, dm.id);
+          if (!isGuest()) {
+            try {
+              await sb.rpc('chat_update_luna_conversation_title', { p_dm_id: dm.id, p_title: fallback });
+            } catch { /* title is best-effort */ }
+          }
+        }
       } catch { /* title is best-effort */ }
     }
 
     async function deleteChat(id) {
       const dm = chats.find((d) => d.id === id);
       if (!dm) return;
+      if (pendingFor.has(id)) {
+        setStatus('Luna is still answering in that conversation. Wait for the reply, then delete it.', true);
+        return;
+      }
+      if (!isGuest()) {
+        // Server first: removing locally before the delete succeeds makes the
+        // conversation silently reappear on the next load.
+        try {
+          const { data: sessionData } = await sb.auth.getSession();
+          const token = sessionData.session?.access_token;
+          if (!token) throw new Error('Your session expired. Sign in again.');
+          const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
+            method: 'POST',
+            headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'delete_conversation', dm_id: id }),
+          });
+          const payload = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(payload.error || 'Could not delete conversation.');
+        } catch (err) {
+          setStatus(err?.message || 'Could not delete conversation.', true);
+          return;
+        }
+      }
       const nextId = currentId === id
         ? (chats.find((d) => d.id !== id && !isEmpty(d))?.id || chats.find((d) => d.id !== id)?.id || null)
         : currentId;
       chats = chats.filter((d) => d.id !== id);
+      liveBy.delete(id);
       persistGuest();
       if (currentId === id) await openChat(nextId);
       else renderChats();
-      if (isGuest()) return;
-      try {
-        const { data: sessionData } = await sb.auth.getSession();
-        const token = sessionData.session?.access_token;
-        if (!token) throw new Error('Your session expired. Sign in again.');
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/${AI_FUNCTION}`, {
-          method: 'POST',
-          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'delete_conversation', dm_id: id }),
-        });
-        const payload = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(payload.error || 'Could not delete conversation.');
-      } catch (err) {
-        setStatus(err?.message || 'Could not delete conversation.', true);
-      }
     }
 
     async function compressImage(file) {
@@ -1350,6 +1441,7 @@
       canvas.height = Math.round(img.naturalHeight * scale);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
       const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.86));
+      if (!blob) throw new Error('Could not process that image. Try a different one.');
       return { blob, preview: canvas.toDataURL('image/jpeg', 0.7), name: file.name || 'image.jpg' };
     }
 
@@ -1359,14 +1451,14 @@
         const path = `${me.user_id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
         const { error } = await sb.storage.from('liminal-media').upload(path, att.blob, { upsert: true, contentType: 'image/jpeg' });
         if (error) throw error;
-        return sb.storage.from('liminal-media').getPublicUrl(path).data.publicUrl;
+        return { url: sb.storage.from('liminal-media').getPublicUrl(path).data.publicUrl, path };
       }
       const safeName = String(att.name || 'file.txt').replace(/[^\w.\-]+/g, '_').slice(-80) || 'file.txt';
       const path = `${me.user_id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}__${encodeURIComponent(safeName)}`;
       const blob = new Blob([await att.file.text()], { type: 'text/plain' });
       const { error } = await sb.storage.from('liminal-media').upload(path, blob, { upsert: true, contentType: 'text/plain' });
       if (error) throw error;
-      return sb.storage.from('liminal-media').getPublicUrl(path).data.publicUrl;
+      return { url: sb.storage.from('liminal-media').getPublicUrl(path).data.publicUrl, path };
     }
 
     function renderChips() {
@@ -1405,61 +1497,60 @@
       renderChips();
     }
 
-    async function consumeStream(res, onDone) {
+    async function consumeStream(res, dmId, onDone) {
+      const live = liveFor(dmId);
       const ctype = res.headers.get('content-type') || '';
       if (!ctype.includes('text/event-stream')) {
         const payload = await res.json().catch(() => ({}));
-        throw new Error(payload.error || 'Liminal could not answer.');
+        const err = new Error(payload.error || 'Liminal could not answer.');
+        err.code = payload.code || '';
+        throw err;
       }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let last = null;
+      const handle = (part) => {
+        const dataLines = part.split('\n').filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim());
+        if (!dataLines.length) return;
+        let ev;
+        try { ev = JSON.parse(dataLines.join('\n')); } catch { return; }
+        if (ev.type === 'thinking') live.label = ev.label || live.label;
+        if (ev.type === 'tool') {
+          const i = live.tools.findIndex((t) => t.id === ev.id);
+          const row = { id: ev.id, name: ev.name, label: ev.label, status: ev.status, detail: ev.detail };
+          if (i >= 0) live.tools[i] = { ...live.tools[i], ...row };
+          else live.tools.push(row);
+        }
+        if (ev.type === 'sources') live.sources = Array.isArray(ev.sources) ? ev.sources : [];
+        if (ev.type === 'error') {
+          const err = new Error(ev.error || 'Liminal could not answer.');
+          err.code = ev.code || '';
+          throw err;
+        }
+        if (ev.type === 'done') last = ev;
+        if (ev.type === 'thinking' || ev.type === 'tool' || ev.type === 'sources') renderLive(dmId);
+        else if (ev.type !== 'done') renderList();
+      };
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
         const parts = buffer.split('\n\n');
         buffer = parts.pop() || '';
-        for (const part of parts) {
-          const line = part.split('\n').find((l) => l.startsWith('data:'));
-          if (!line) continue;
-          let ev;
-          try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
-          if (ev.type === 'thinking') live.label = ev.label || live.label;
-          if (ev.type === 'tool') {
-            const i = live.tools.findIndex((t) => t.id === ev.id);
-            const row = { id: ev.id, name: ev.name, label: ev.label, status: ev.status, detail: ev.detail };
-            if (i >= 0) live.tools[i] = { ...live.tools[i], ...row };
-            else live.tools.push(row);
-          }
-          if (ev.type === 'sources') live.sources = Array.isArray(ev.sources) ? ev.sources : [];
-          if (ev.type === 'error') throw new Error(ev.error || 'Liminal could not answer.');
-          if (ev.type === 'done') last = ev;
-          if (ev.type === 'thinking' || ev.type === 'tool' || ev.type === 'sources') renderLive();
-          else if (ev.type !== 'done') renderList();
-        }
+        for (const part of parts) handle(part);
       }
-      if (buffer.trim()) {
-        const line = buffer.split('\n').find((l) => l.startsWith('data:'));
-        if (line) {
-          try {
-            const ev = JSON.parse(line.slice(5).trim());
-            if (ev.type === 'error') throw new Error(ev.error || 'Liminal could not answer.');
-            if (ev.type === 'done') last = ev;
-          } catch (err) {
-            if (err instanceof Error && err.message && !err.message.startsWith('Unexpected')) throw err;
-          }
-        }
-      }
+      if (buffer.trim()) handle(buffer);
       if (onDone) await onDone(last);
     }
 
     async function askLuna(message) {
-      pending = true;
-      live = { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [], sources: [] };
-      renderList();
-      $('send').disabled = true;
+      const dmId = message.dm_id;
+      pendingFor.add(dmId);
+      liveBy.set(dmId, { label: mode === 'code' ? 'working' : mode === 'thinking' ? 'thinking' : 'answering', tools: [], sources: [] });
+      let delivered = false;
+      if (dmId === currentId) renderList(true);
+      syncSendBtn();
       clearNotice();
       try {
         if (isGuest()) {
@@ -1470,17 +1561,18 @@
               action: 'guest_reply',
               mode,
               provider,
-              needs_title: untitled(current()),
+              needs_title: untitled(chats.find((d) => d.id === dmId)),
               messages: msgs.filter((m) => !m.deleted).map((m) => ({
                 id: m.id, sender: m.sender, content: m.content, type: m.type, media_url: m.media_url,
               })),
             }),
           });
-          await consumeStream(res, async (ev) => {
-            if (!ev?.reply) throw new Error('Liminal ran out of time on that one. Try again.');
+          await consumeStream(res, dmId, async (ev) => {
+            if (!ev) throw new Error('Liminal ran out of time on that one. Try again.');
+            if (!ev.reply) throw new Error('Liminal could not answer that one. Try again.');
             ingest({
               id: ev.response_message_id || uid(),
-              dm_id: currentId,
+              dm_id: dmId,
               sender: AI_USERNAME,
               content: ev.reply || '',
               type: 'text',
@@ -1489,14 +1581,16 @@
                 mode: ev.mode || mode,
                 provider: ev.provider || provider,
                 reasoning_effort: ev.reasoning_effort || MODE_META[mode].effort,
-                sources: ev.sources || live.sources || [],
-                tools: ev.tools || live.tools || [],
+                reasoning: ev.reasoning || '',
+                sources: ev.sources || liveFor(dmId).sources || [],
+                tools: ev.tools || liveFor(dmId).tools || [],
                 files: (ev.files || []).map((f) => ({ ...f, content: f.content || '' })),
               },
               deleted: false,
               created_at: new Date().toISOString(),
             });
-            await maybeTitle(ev);
+            delivered = true;
+            await maybeTitle(ev, dmId);
           });
           return;
         }
@@ -1508,40 +1602,50 @@
           headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'reply', source_message_id: message.id, mode, provider }),
         });
-        await consumeStream(res, async (ev) => {
-          const doneId = ev?.response_message_id;
+        await consumeStream(res, dmId, async (ev) => {
+          // A stream that ends with no done event means the function died or
+          // the provider ran out of time: say so instead of failing silently.
+          if (!ev) {
+            const err = new Error('Liminal ran out of time on that one. Try again.');
+            err.code = 'luna_timeout';
+            throw err;
+          }
+          const doneId = ev.response_message_id;
           if (!doneId) return;
           const { data: row } = await sb.from('dm_messages').select(COLS).eq('id', doneId).maybeSingle();
-          if (row) ingest(row);
-          await maybeTitle(ev);
+          if (row) {
+            ingest(row);
+            delivered = true;
+          }
+          await maybeTitle(ev, dmId);
         });
       } catch (err) {
         const text = err?.message || 'Liminal could not answer.';
         const clientBug = /is not a function|cannot read|undefined is not|null is not/i.test(text);
-        const answered = msgs.some((m) => !m.deleted && m.sender === AI_USERNAME);
-        if (clientBug && answered) return;
+        // If the reply actually landed and only our rendering broke, stay quiet.
+        if (clientBug && delivered) return;
         if (clientBug) {
           setStatus('Something went wrong on this page. Refresh and try again.', true);
           return;
         }
-        const card = classifyNotice(text);
+        const card = classifyNotice(err?.code, text);
         showNotice(card.kind, card.title, card.body);
         setStatus(text, true);
       } finally {
-        pending = false;
-        $('send').disabled = false;
-        renderList();
+        pendingFor.delete(dmId);
+        syncSendBtn();
+        if (dmId === currentId) renderList();
       }
     }
 
     async function send(event) {
       event.preventDefault();
-      if (sending || pending) return;
+      if (sending || pendingFor.has(currentId)) return;
       const input = $('input');
       const content = input.value.trim();
       const queued = attachments.slice();
       if (!content && !queued.length) return;
-      if (!PROVIDER_META[provider]?.vision && hasImagesInPlay(queued)) {
+      if (!PROVIDER_META[provider]?.vision && hasQueuedImages(queued)) {
         const text = visionError();
         setStatus(text, true);
         showNotice('capability', `${PROVIDER_META[provider].label} cannot see photos`, text);
@@ -1577,11 +1681,15 @@
             last = row;
             continue;
           }
-          const url = await upload(att);
+          const uploaded = await upload(att);
           const { data, error } = await sb.from('dm_messages').insert({
-            sender: me.username, content: caption, type: att.kind, media_url: url, dm_id: dmId, read_by: [me.username],
+            sender: me.username, content: caption, type: att.kind, media_url: uploaded.url, dm_id: dmId, read_by: [me.username],
           }).select(COLS).single();
-          if (error || !data) throw new Error(error?.message || 'Upload failed.');
+          if (error || !data) {
+            // The upload already landed; do not leave an orphaned object behind.
+            try { await sb.storage.from('liminal-media').remove([uploaded.path]); } catch {}
+            throw new Error(error?.message || 'Upload failed.');
+          }
           ingest(data);
           last = data;
         }
@@ -1626,7 +1734,7 @@
     function guestThreadsPayload() {
       const current = chats.find((d) => d.id === currentId);
       if (current) current.messages = msgs.slice();
-      return chats
+      const pack = (stripFiles) => chats
         .filter((d) => (d.messages || []).some((m) => !m.deleted))
         .map((d) => ({
           title: titleOf(d),
@@ -1635,9 +1743,23 @@
             content: m.content || '',
             type: m.type || 'text',
             media_url: m.media_url || null,
-            reply_to: m.reply_to || null,
+            reply_to: m.reply_to ? {
+              ...m.reply_to,
+              files: (m.reply_to.files || []).map((f) => ({
+                path: f.path,
+                bytes: f.bytes,
+                content: stripFiles ? '' : String(f.content || '').slice(0, 20000),
+              })).filter((f) => f.content),
+            } : null,
           })),
         }));
+      // Keep the import request comfortably under the function's body limit:
+      // artifact contents are the first thing to shrink.
+      let threads = pack(false);
+      try {
+        if (JSON.stringify(threads).length > 2_500_000) threads = pack(true);
+      } catch { threads = pack(true); }
+      return threads;
     }
 
     async function importGuestHistory() {
@@ -1658,14 +1780,17 @@
 
     async function boot(profile) {
       me = profile;
-      if (!me.user_id) {
-        const { data } = await sb.from('profiles').select('user_id').eq('username', me.username).maybeSingle();
-        if (data?.user_id) me.user_id = data.user_id;
-      }
       $('boot').hidden = true;
       hideAuth();
       $('app').hidden = false;
       syncAccountChrome();
+      // The database trigger enforces the community message-length setting;
+      // mirror it into the composer so long drafts are stopped before sending.
+      try {
+        const { data: limitRow } = await sb.from('app_settings').select('value').eq('key', 'max_message_length').maybeSingle();
+        const limit = Math.min(4000, Math.max(100, parseInt(limitRow?.value || '', 10) || 2000));
+        $('input').maxLength = limit;
+      } catch { $('input').maxLength = 2000; }
       await loadChats();
       setupRealtime();
       const saved = (() => { try { return sessionStorage.getItem(LAST_KEY); } catch { return ''; } })();
@@ -1689,7 +1814,14 @@
       if (!sessionData.session) return false;
       const { data: profile, error } = await sb.rpc('chat_get_my_profile');
       if (error || !profile) { await sb.auth.signOut({ scope: 'local' }); return false; }
-      if (profile.is_banned) { $('boot').textContent = 'This account is banned.'; return true; }
+      if (profile.is_banned) {
+        // Drop the dead session so the user lands on the auth screen instead
+        // of a dead-end boot message.
+        try { await sb.auth.signOut({ scope: 'local' }); } catch {}
+        showAuth();
+        $('login-error').textContent = 'This account is banned.';
+        return true;
+      }
       await boot(profile);
       return true;
     }
@@ -1753,7 +1885,11 @@
           errEl.textContent = `No Liminal profile exists for "${username}".`;
           return;
         }
-        if (data.is_banned) { errEl.textContent = 'This account is banned.'; return; }
+        if (data.is_banned) {
+          try { await sb.auth.signOut({ scope: 'local' }); } catch {}
+          errEl.textContent = 'This account is banned.';
+          return;
+        }
         await afterAuth(data);
       } catch (err) {
         errEl.textContent = err?.message || 'Could not reach the server. Try again.';
@@ -1905,7 +2041,10 @@
     }
 
     waitForSupabase().then(async (ready) => {
-      if (!ready) { $('boot').textContent = 'Could not load supabase-js.'; return; }
+      if (!ready) {
+        $('boot').innerHTML = '<div style="display:grid;gap:14px;justify-items:center"><span>Could not load the app library. Check your connection.</span><button type="button" class="quiet" onclick="location.reload()">Reload</button></div>';
+        return;
+      }
       sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: localStorage },
       });
