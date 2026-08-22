@@ -9125,7 +9125,7 @@
           + '<button class="secondary-button" type="button" data-hc-act="dm">💬 Message</button>';
       }
       renderHoverFollow(username);
-      const canModerate = isAdmin() && !self && !p.is_owner && (!p.is_admin || isOwner());
+      const canModerate = isAdmin() && !self && !p.is_owner && (!p.is_admin || isOwner()) && username.toLowerCase() !== AI_USERNAME.toLowerCase();
       modRow.hidden = !canModerate && !(isOwner() && !self);
       let modHtml = '';
       if (canModerate) {
@@ -9163,6 +9163,10 @@
 
     /* ============================= 28. ADMIN USER ACTIONS ============================= */
     async function applyTimeout(username, minutes) {
+      if (String(username || '').toLowerCase() === AI_USERNAME.toLowerCase()) {
+        toast({ type: 'warning', text: 'Luna cannot be timed out.' });
+        return;
+      }
       const { data, error } = await sb.rpc('chat_staff_timeout_user', {
         p_actor_username: me.username,
         p_actor_password_hash: '',
